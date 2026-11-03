@@ -194,6 +194,37 @@ class TestKura(unittest.TestCase):
             self.assertEqual(prod("kurasushi", "2")["status"], "ended")
             self.assertEqual(prod("kurasushi", "2")["ended_observed_at"], "2026-11-21")
 
+    def test_old_fair_images_are_not_newly_recorded_but_recorded_ones_stay(self):
+        with TempData():
+            first = [("にぎり", [S.kura_item("1", "新フェア品", fair=True, date="261030"),
+                               S.kura_item("2", "30日前のフェア品", fair=True, date="261001"),
+                               S.kura_item("3", "常設化した品", fair=True, date="260626"),
+                               S.kura_item("4", "日付なし画像の品", fair=True, date="xxxxxx")])]
+            _, st = run_chain(crawl.crawl_kurasushi, kura_site(first), "2026-11-03")
+            self.assertEqual(sorted(p["product_id"] for p in crawl.load_chain_products("kurasushi")), ["1", "2"])
+            self.assertEqual(st["kurasushi"]["fair_outside_window"], 2)
+            # 次のフェアが来て、記録済みの品が窓を外れても、fair画像のまま載っている間は販売中
+            nxt = [("にぎり", [S.kura_item("1", "新フェア品", fair=True, date="261030"),
+                              S.kura_item("2", "30日前のフェア品", fair=True, date="261001"),
+                              S.kura_item("9", "次のフェア品", fair=True, date="261215")])]
+            for d in ("2026-12-15", "2026-12-16"):
+                run_chain(crawl.crawl_kurasushi, kura_site(nxt), d)
+            self.assertEqual(prod("kurasushi", "1")["status"], "on_sale")
+            self.assertEqual(prod("kurasushi", "2")["status"], "on_sale")
+            self.assertIsNotNone(prod("kurasushi", "9"))
+            self.assertIsNone(prod("kurasushi", "3"))
+            # 一覧から消えたら従来どおり2回で終了
+            gone = [("にぎり", [S.kura_item("9", "次のフェア品", fair=True, date="261215")])]
+            run_chain(crawl.crawl_kurasushi, kura_site(gone), "2026-12-17")
+            run_chain(crawl.crawl_kurasushi, kura_site(gone), "2026-12-18")
+            self.assertEqual(prod("kurasushi", "1")["status"], "ended")
+
+    def test_window_days_is_configurable(self):
+        with TempData(), mock.patch.dict(crawl.CONFIG["kurasushi"], {"fair_window_days": 100}):
+            page = [("にぎり", [S.kura_item("1", "a", fair=True, date="261030"), S.kura_item("3", "b", fair=True, date="260801")])]
+            run_chain(crawl.crawl_kurasushi, kura_site(page), "2026-11-03")
+            self.assertIsNotNone(prod("kurasushi", "3"))
+
     def test_runaway_classification_trips_the_burst_guard(self):
         with TempData():
             run_chain(crawl.crawl_kurasushi, kura_site(KURA_SECTIONS), "2026-11-03")

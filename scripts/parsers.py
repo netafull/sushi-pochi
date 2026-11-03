@@ -290,6 +290,17 @@ def _image_is_fair(src: str | None) -> bool:
     return "fair" in re.split(r"[_\-.]", base.lower())
 
 
+def _image_date(src: str | None) -> str | None:
+    """画像ファイル名の先頭の YYMMDD(例 261030_fair_…)を日付にする。読めなければ None。画像名そのものは返さない。"""
+    m = re.match(r"(\d{2})(\d{2})(\d{2})_", (src or "").rsplit("/", 1)[-1])
+    if not m:
+        return None
+    try:
+        return datetime.date(2000 + int(m.group(1)), int(m.group(2)), int(m.group(3))).isoformat()
+    except ValueError:
+        return None
+
+
 def parse_kura_menu(html: str) -> dict:
     """/menu/ -> {"items":[...],"price_tier"}。商品ブロック <div id="menu-008831"> を全部読む。
 
@@ -338,6 +349,7 @@ def parse_kura_menu(html: str) -> dict:
         by_image = _image_is_fair(img.group(1) if img else None)
         items.append({"id": iid, "name": name, "price": price, "kcal": kcal, "area": area, "takeout": takeout,
                       "section": section, "limited": by_section or by_image,
+                      "fair_date": _image_date(img.group(1)) if (img and by_image) else None,
                       "limited_by": "section" if by_section else ("image" if by_image else None)})
     return {"items": items, "price_tier": int(tier.group(1)) if tier else None}
 

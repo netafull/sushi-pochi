@@ -879,9 +879,21 @@ def crawl_kurasushi(getter, pending: dict, stats: dict, today: str | None = None
         print(f"[warn] kurasushi メニューの構造が想定と違う(構造変更の疑い): {e}", file=sys.stderr)
         return
     st["menu_total"] = len(menu["items"])
+    # fair画像は、その回のメニュー改定で出た画像の名残で、古い接頭辞の品は常設化している。
+    # 新規に記録するのは、画像名の日付がページ内のfair画像の最新日付から fair_window_days 日以内の品だけ
+    # (日付が読めない画像は新規に記録しない)。見出しのセクションの品は常に対象。
+    # 記録済みの品は、窓を外れても fair 画像のまま載っている間は販売中として扱う(次のフェアで前のフェア品を終了にしない)
+    days = int((CONFIG.get("kurasushi") or {}).get("fair_window_days", 31))
+    dates = [it["fair_date"] for it in menu["items"] if it.get("fair_date")]
+    latest = datetime.date.fromisoformat(max(dates)) if dates else None
     entries: dict[str, dict] = {}
     for it in menu["items"]:
         if not it["limited"]:
+            continue
+        in_window = it["limited_by"] == "section" or bool(
+            it.get("fair_date") and latest and (latest - datetime.date.fromisoformat(it["fair_date"])).days <= days)
+        if not in_window and load_product(chain, it["id"]) is None:
+            st["fair_outside_window"] = st.get("fair_outside_window", 0) + 1
             continue
         entries[it["id"]] = {**it, "pid": it["id"], "price_max": None, "official_url": menu_url}
     tier = menu.get("price_tier")

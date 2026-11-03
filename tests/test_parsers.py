@@ -106,6 +106,14 @@ class TestKura(unittest.TestCase):
         self.assertEqual(it["008811"]["section"], "にぎり")
         self.assertTrue(it["008811"]["takeout"])
 
+    def test_fair_date_comes_from_the_image_prefix(self):
+        h = S.kura_page([("にぎり", [S.kura_item("1", "a", fair=True, date="260626"), S.kura_item("2", "b", fair=True, date="zzzzzz"),
+                                   S.kura_item("3", "c", fair=False)])])
+        it = {i["id"]: i for i in P.parse_kura_menu(h)["items"]}
+        self.assertEqual(it["1"]["fair_date"], "2026-06-26")
+        self.assertIsNone(it["2"]["fair_date"])
+        self.assertIsNone(it["3"]["fair_date"])
+
     def test_image_name_is_not_kept(self):
         blob = json.dumps(P.parse_kura_menu(self.page()), ensure_ascii=False)
         self.assertNotIn("261030", blob)

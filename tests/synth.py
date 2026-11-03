@@ -66,8 +66,8 @@ KURA_MENU = f"{KURA_BASE}/menu/"
 
 
 def kura_item(iid: str, name: str, price: int = 110, kcal: str | None = "76kcal", fair: bool = False,
-              area: str = "全店舗", takeout: str = "可") -> str:
-    img = f"261030_{'fair' if fair else 'teiban'}_{iid}.jpg"
+              area: str = "全店舗", takeout: str = "可", date: str = "261030") -> str:
+    img = f"{date}_{'fair' if fair else 'teiban'}_{iid}.jpg"
     kc = f"<p>{kcal}</p>" if kcal else ""
     return f"""<div id="menu-{iid}" class="
     menu-item

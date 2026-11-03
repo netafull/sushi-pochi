@@ -50,13 +50,13 @@
   "label": "くら寿司 アレルゲン・カロリー情報（公式PDF）",
   "version": "2026-10-30",
   "version_text": "2026年10月30日現在",
-  "fetched_at": "2026-11-03T19:24:06+09:00"
+  "fetched_at": "2026-11-03T19:31:01+09:00"
  },
  "allergen_note": null,
  "limited_kind": "フェア商品",
  "stores_note": null,
  "official_url": "https://www.kurasushi.co.jp/menu/",
- "first_seen_at": "2026-11-03T19:24:04+09:00",
+ "first_seen_at": "2026-11-03T19:30:58+09:00",
  "last_seen_at": "2026-11-03",
  "status": "on_sale",
  "ended_observed_at": null,

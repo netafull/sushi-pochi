@@ -295,5 +295,8 @@
   "kurasushi": 100,
   "hamazushi": 70,
   "kappasushi": 60
+ },
+ "kurasushi": {
+  "fair_window_days": 31
  }
 }
