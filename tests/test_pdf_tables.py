@@ -78,6 +78,14 @@ class TestParse(unittest.TestCase):
         self.assertIsNone(pt.validate_table("sushiro", parsed))
 
 
+class TestVersion(unittest.TestCase):
+    def test_latest_date_in_the_pdf_is_the_version(self):
+        pages, _ = build("kappasushi", per_page=100)
+        pages[0]["texts"].append([300, 560, 400, 570, "商品開発部門確認日 : 2026/10/22"])
+        pages[0]["texts"].append([300, 540, 400, 550, "商品開発部門確認日 : 2026/9/8"])
+        self.assertEqual(pt.parse_table(pages, "kappasushi")["updated"], "2026-10-22")
+
+
 class TestValidation(unittest.TestCase):
     def test_too_few_rows(self):
         pages, _ = build("hamazushi")

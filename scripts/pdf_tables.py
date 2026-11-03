@@ -122,14 +122,17 @@ def _clean_col_name(s: str) -> str:
 
 
 def _updated(pages: list[dict], patterns: list[str]) -> str | None:
+    """PDFに書かれた更新日・確認日のうち、いちばん新しいもの(かっぱ寿司のPDFはページごとに確認日が違い、
+    先頭ページは古い版のままなので、最新のものを版とする)。"""
+    found = []
     for p in pages:
         for t in p["texts"]:
             s = nfkc(t[4])
             for pat in patterns:
                 m = re.search(pat, s)
                 if m:
-                    return f"{int(m.group(1)):04d}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
-    return None
+                    found.append(f"{int(m.group(1)):04d}-{int(m.group(2)):02d}-{int(m.group(3)):02d}")
+    return max(found) if found else None
 
 
 def _page_table(page: dict, spec: dict) -> dict | None:

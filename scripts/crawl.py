@@ -724,15 +724,11 @@ def set_period(product: dict, start: str | None, end: str | None, sellout: bool 
                quantity: str | None = None, end_label: str = "終了予定") -> None:
     """公式の販売期間(メニューの注記・JSONの日付)を事実として残す。"""
     product["period"] = {"start": start, "end": end, "sellout": sellout, "quantity": quantity}
+    extra = "・".join(x for x in (("完売次第終了" if sellout else None), quantity) if x)
     if end:
-        s = f"{end}まで"
-        if sellout:
-            s += "（完売次第終了）"
-        if quantity:
-            s += f"（{quantity}）"
-        product["planned_end_text"] = s
-    elif sellout:
-        product["planned_end_text"] = "完売次第終了" + (f"（{quantity}）" if quantity else "")
+        product["planned_end_text"] = f"{end}まで" + (f"（{extra}）" if extra else "")
+    elif extra:
+        product["planned_end_text"] = extra
     else:
         product["planned_end_text"] = None
 

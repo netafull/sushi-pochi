@@ -108,7 +108,7 @@ class TestItemPage(unittest.TestCase):
         for src in re.findall(r'<img[^>]*src="([^"]*)"', h):
             # サイトのロゴと、運営者自身のブログ(ネタフル)のレビュー記事のアイキャッチだけ。各社の公式画像は表示しない
             self.assertTrue(src == "/assets/logo.png" or src.startswith("https://netaful.jp/"), src)
-            for official in ("sushiro", "kurasushi", "hamazushi", "kappasushi", "asset.menu"):
+            for official in ("akindo-sushiro.co.jp", "kurasushi.co.jp", "hamazushi.com", "kappasushi.jp", "zensho.co.jp", "cmsimage"):
                 self.assertNotIn(official, src)
 
     def test_nutrition_inline_for_few_other(self):
@@ -182,6 +182,10 @@ class TestItemPage(unittest.TestCase):
         self.assertIn("公式のメニューデータに載っている販売終了日", h)
         self.assertNotIn("一覧から消えたことを確認した日です。一覧から外れただけ", h)
         self.assertIn("終了日は公式のメニューデータの販売終了日", g.period_text(it, detailed=True))
+
+    def test_kappasushi_end_note_mentions_the_official_close_date(self):
+        h = g.render_item_page(item(chain="kappasushi"))
+        self.assertIn("公式のメニューデータに載っている販売終了日を過ぎた日、または公式の一覧から消えたことを確認した日", h)
 
     def test_hamazushi_kcal_comes_from_the_pdf_and_says_so(self):
         h = g.render_item_page(item(chain="hamazushi"))

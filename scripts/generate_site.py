@@ -1145,6 +1145,8 @@ def render_notes(item: dict) -> str:
         notes.append("公式の表示から発売日を拾えなかったため、記録を始めた日（記録開始日）から表示しています。発売日ではありません。")
     if item.get("ended_basis") == "official_close_date":
         notes.append("終了日は、公式のメニューデータに載っている販売終了日です。")
+    elif chain == "kappasushi":
+        notes.append("終了は、公式のメニューデータに載っている販売終了日を過ぎた日、または公式の一覧から消えたことを確認した日です。")
     else:
         notes.append("終了日は公式の最終販売日ではなく、公式サイトの一覧から消えたことを確認した日です。"
                      "一覧から外れただけで、店頭ではまだ販売していることもあります。")

@@ -39,7 +39,7 @@ class TestSushiro(unittest.TestCase):
             self.assertEqual((p["name"], p["price"], p["limited_kind"]), ("テスト貝柱 1貫", 110, "期間限定"))
             self.assertEqual(p["launch_date"], "2026-10-28")
             self.assertEqual(p["launch_date_source"], "menu_period")
-            self.assertEqual(p["planned_end_text"], "2026-11-08まで（完売次第終了）（販売予定総数343万食）")
+            self.assertEqual(p["planned_end_text"], "2026-11-08まで（完売次第終了・販売予定総数343万食）")
             self.assertEqual(p["nutrition"], {"kcal": 38.0})
             self.assertIn("テスト店", p["price_note"] + crawl.CONFIG["sushiro"]["store_label"] + "テスト店")  # 代表店舗を明記
             self.assertIn("店舗により異なります", p["price_note"])
@@ -47,7 +47,7 @@ class TestSushiro(unittest.TestCase):
             self.assertEqual(p["first_seen_at"], "2026-11-03T07:00:00+09:00")
             self.assertIsNone(prod("sushiro", "3"))  # 定番(期間の注記なし)は記録しない
             self.assertEqual(prod("sushiro", "2")["stores_note"], "お持ち帰り対象外")
-            self.assertEqual(prod("sushiro", "2")["planned_end_text"], "完売次第終了（手配総数24.3万枚分）")
+            self.assertEqual(prod("sushiro", "2")["planned_end_text"], "完売次第終了・手配総数24.3万枚分")
 
     def test_no_description_or_image_is_stored(self):
         with TempData():
@@ -97,7 +97,7 @@ class TestSushiro(unittest.TestCase):
             items[0] = S.sushiro_item("1", "テスト貝柱 1貫", 130, "38kcal", S.period_ann("10/28(水)", "11/15(日)", "343万食"))
             run_chain(crawl.crawl_sushiro, sushiro_site(items), "2026-11-07")
             p = prod("sushiro", "1")
-            self.assertEqual(p["planned_end_text"], "2026-11-15まで（完売次第終了）（販売予定総数343万食）")
+            self.assertEqual(p["planned_end_text"], "2026-11-15まで（完売次第終了・販売予定総数343万食）")
             self.assertEqual([h["price"] for h in p["price_history"]], [110, 130])
             self.assertEqual(p["launch_date"], "2026-10-28")
 
