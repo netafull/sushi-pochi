@@ -1,0 +1,1417 @@
+#!/usr/bin/env python3
+"""data/products/*/*.json から docs/ 一式を生成する静的サイトジェネレータ。
+
+コンビニポチ・ファストフードポチ・カフェポチの骨格を踏襲した、回転寿司ポチ(sushi.netaful.jp)のジェネレータ。
+「いつからいつまで載っていたか」が軸なので、販売状況(販売中/終了)と、
+終了した期間限定ネタの開始月別アーカイブで構成する。
+
+4社(スシロー・くら寿司・はま寿司・かっぱ寿司)とも規約が複製・転載を禁じているため、
+表示するのは事実(商品名・価格・日付・カロリー・アレルゲン)と公式ページへのリンクだけ。
+説明文・画像は載せない(保存もしていない)。価格は店舗で違うので、その旨をサイト全体と各商品ページに書く。
+"""
+
+from __future__ import annotations
+
+import datetime
+import html
+import json
+import re
+import shutil
+import unicodedata
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+CONFIG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
+DATA = ROOT / "data"
+PRODUCTS = DATA / "products"
+DOCS = ROOT / "docs"
+JST = datetime.timezone(datetime.timedelta(hours=9))
+
+CHAINS = CONFIG["chains"]
+CHAIN_NAME = {c["slug"]: c["name"] for c in CHAINS}
+CHAIN_OFFICIAL = CONFIG.get("chain_official") or {}
+# 出典の表記(出典：○○公式サイト)
+CHAIN_SOURCE = {slug: v.get("source") or CHAIN_NAME.get(slug, slug) + "公式サイト" for slug, v in CHAIN_OFFICIAL.items()}
+# 全チェーン名の並び(ページの説明文用): 「スシロー・くら寿司・はま寿司・かっぱ寿司」
+CHAIN_LIST_TEXT = "・".join(c["name"] for c in CHAINS)
+# 「終了日」の注意書き。公式発表の最終販売日ではなく、一覧から消えたことの観測日
+ENDED_NOTE = "公式サイトの一覧から消えたことを確認した日"
+
+REVIEWS_PATH = DATA / "netaful_reviews.json"
+
+
+def load_reviews() -> dict:
+    try:
+        return json.loads(REVIEWS_PATH.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"articles": {}, "matches": {}}
+
+
+REVIEWS = load_reviews()
+ARTICLES_BY_ID: dict[int, dict] = {}
+_chain = _arts = None  # 記事キャッシュが空のとき del で NameError にならないように
+for _chain, _arts in REVIEWS.get("articles", {}).items():
+    for _a in _arts:
+        _a = dict(_a)
+        _a["chain"] = _chain
+        ARTICLES_BY_ID[_a["id"]] = _a
+del _chain, _arts
+
+
+def item_reviews(item: dict) -> list[dict]:
+    """商品にひも付いたネタフルのレビュー記事(新しい順)。"""
+    key = f"{item['chain']}-{item['product_id']}"
+    ids = REVIEWS.get("matches", {}).get(key, [])
+    arts = [ARTICLES_BY_ID[i] for i in ids if i in ARTICLES_BY_ID]
+    return sorted(arts, key=lambda a: a.get("date") or "", reverse=True)
+
+
+def latest_reviews(chain: str | None, limit: int) -> list[dict]:
+    arts = list(ARTICLES_BY_ID.values())
+    if chain:
+        arts = [a for a in arts if a["chain"] == chain]
+    return sorted(arts, key=lambda a: a.get("date") or "", reverse=True)[:limit]
+
+
+def render_review_card(a: dict) -> str:
+    thumb = a.get("thumb") or {}
+    img_html = ""
+    if thumb.get("url"):
+        w, h = thumb.get("width"), thumb.get("height")
+        wh_attr = f' width="{int(w)}" height="{int(h)}"' if w and h else ""
+        img_html = (
+            f'<img src="{esc(thumb["url"])}" alt="{esc(a.get("title") or "")}" '
+            f'loading="lazy"{wh_attr}>'
+        )
+    return f"""<a class="review-card" href="{esc(a.get('link') or '')}" target="_blank" rel="noopener">
+{img_html}
+<div class="rc-body">
+<div class="rc-t">{esc(a.get('title') or '')}</div>
+<div class="rc-date">{esc((a.get('date') or '')[:10])}</div>
+</div>
+</a>"""
+
+
+def render_review_cards(title: str, articles: list[dict]) -> str:
+    """ネタフルのレビュー記事を画像付きカードのグリッドで表示する。"""
+    if not articles:
+        return ""
+    cards = "\n".join(render_review_card(a) for a in articles)
+    return f"""<h2>{esc(title)}</h2>
+<div class="review-grid">
+{cards}
+</div>"""
+
+
+def nfkc(s: str | None) -> str:
+    return unicodedata.normalize("NFKC", s or "")
+
+
+RELATED_KEYWORDS: list[dict] = CONFIG.get("related_keywords") or []
+
+
+def match_keyword_for_name(name: str, keywords: list[dict] | None = None) -> dict | None:
+    """商品名にマッチする関連キーワードのうち、一致した語が最も長い(具体的な)
+    ものを返す。excludeに指定された語を含む場合、その語による一致は無視する。
+    複数のキーワードが同じ長さで一致した場合はkeywordsに書かれた順を優先する。"""
+    keywords = RELATED_KEYWORDS if keywords is None else keywords
+    name_n = nfkc(name)
+    best_kw = None
+    best_len = -1
+    for kw in keywords:
+        excludes = kw.get("exclude") or []
+        for w in kw.get("words") or []:
+            if w not in name_n:
+                continue
+            if any(ex in name_n for ex in excludes):
+                continue
+            if len(w) > best_len:
+                best_len = len(w)
+                best_kw = kw
+            break  # このキーワード内では最初にマッチした語で十分(長さはword単位)
+    return best_kw
+
+
+def articles_for_keyword(keyword: dict, articles: list[dict]) -> list[dict]:
+    """記事タイトルにキーワードのいずれかの語を含む記事(除外語を含むものは除く)。"""
+    words = keyword.get("words") or []
+    excludes = keyword.get("exclude") or []
+    result = []
+    for a in articles:
+        title_n = nfkc(a.get("title"))
+        if any(ex in title_n for ex in excludes):
+            continue
+        if any(w in title_n for w in words):
+            result.append(a)
+    return result
+
+
+def select_related_articles(
+    item: dict, articles_by_id: dict[int, dict], keywords: list[dict] | None = None,
+    limit: int = 4,
+) -> tuple[str, list[dict]] | None:
+    """商品名から関連キーワードを判定し、そのキーワードに該当する記事(直接ひも
+    付いたレビュー記事を除く)を、同じチェーン優先・新しい順に最大limit件返す。
+    該当キーワードが無い、または記事が1件も無ければNoneを返す。"""
+    kw = match_keyword_for_name(item.get("name", ""), keywords)
+    if not kw:
+        return None
+    candidates = articles_for_keyword(kw, list(articles_by_id.values()))
+    linked_ids = {a["id"] for a in item_reviews(item)}
+    candidates = [a for a in candidates if a["id"] not in linked_ids]
+    if not candidates:
+        return None
+    # 日付の新しい順に並べた後、同じチェーンのものを優先する安定ソート
+    candidates.sort(key=lambda a: a.get("date") or "", reverse=True)
+    candidates.sort(key=lambda a: a.get("chain") != item.get("chain"))
+    return kw["label"], candidates[:limit]
+
+
+def esc(s) -> str:
+    return html.escape(s or "", quote=True)
+
+
+def has_asset(name: str) -> bool:
+    return (DOCS / "assets" / name).is_file()
+
+
+def load_all_products() -> list[dict]:
+    items = []
+    for chain in CHAIN_NAME:
+        d = PRODUCTS / chain
+        if not d.is_dir():
+            continue
+        for f in sorted(d.glob("*.json")):
+            try:
+                items.append(json.loads(f.read_text(encoding="utf-8")))
+            except json.JSONDecodeError:
+                continue
+    return items
+
+
+def season_observed_start(item: dict) -> str:
+    """発売日が分からないときの「記録上の開始日」。再登場した商品は、再登場を確認した日(今季の起点)。"""
+    rel = item.get("relaunches") or []
+    if rel and rel[-1].get("reappeared_at"):
+        return rel[-1]["reappeared_at"]
+    return (item.get("first_seen_at") or "")[:10]
+
+
+def listed_date(item: dict) -> str | None:
+    """タリーズの「公式サイト掲載日」(一覧の data-new)。再登場した商品では昨季の値なので使わない。"""
+    if item.get("relaunches"):
+        return None
+    return item.get("listed_at") or None
+
+
+def effective_date(item: dict) -> str | None:
+    """販売開始日。取れなかった商品は公式サイトの掲載日、無ければ初回に見つけた日で代替する。"""
+    return item.get("launch_date") or listed_date(item) or season_observed_start(item) or None
+
+
+def is_ended(item: dict) -> bool:
+    return item.get("status") == "ended"
+
+
+# 注意: item_url はサイトルートからの相対パス(先頭に / が無い)。**カードのhrefに使うときは先頭に "/" を付ける**。
+# 付け忘れると、/chains/xxx/ や /weeks/xxx/ のような階層のあるページで /chains/xxx/items/… を指して404になる
+# (2026-10-15に、ファストフードポチのチェーンページとコンビニポチのチェーン・週別ページで発覚)。
+def item_url(item: dict) -> str:
+    return f"items/{item['chain']}-{item['product_id']}.html"
+
+
+def fmt_price(item: dict) -> str:
+    """「690円（税込）」「530〜590円（税込）」「570円〜（税込）」。価格が無ければ空。"""
+    p = item.get("price")
+    if p is None:
+        return ""
+    v = int(p) if float(p) == int(p) else p
+    pm = item.get("price_max")
+    if pm is not None and pm != p:
+        return f"{v:,}〜{int(pm) if float(pm) == int(pm) else pm:,}円（税込）"
+    if item.get("price_from"):
+        return f"{v:,}円〜（税込）"
+    return f"{v:,}円（税込）"
+
+
+def period_text(item: dict, detailed: bool = False) -> str:
+    """「いつからいつまで載っていたか」。発売日が分からないときは公式サイトの掲載日、無ければ記録開始日。"""
+    start = item.get("launch_date")
+    listed = listed_date(item)
+    first = season_observed_start(item)
+    if start:
+        head = start
+    elif listed:
+        head = f"{listed}（公式サイト掲載日）"
+    else:
+        head = f"{first}（記録開始日）"
+    if is_ended(item):
+        s = f"{head}〜{item.get('ended_observed_at') or ''}"
+        if detailed:
+            s += ("（終了日は公式のメニューデータの販売終了日）" if item.get("ended_basis") == "official_close_date"
+                  else f"（終了日は{ENDED_NOTE}）")
+        return s
+    s = f"{head}〜 販売中"
+    if detailed and item.get("planned_end_text"):
+        s += f"（終了予定：{item['planned_end_text']}）"
+    return s
+
+
+def render_card(item: dict) -> str:
+    chain_name = CHAIN_NAME.get(item["chain"], item["chain"])
+    date = effective_date(item) or ""
+    kcal = (item.get("nutrition") or {}).get("kcal")
+    kcal_html = f'<span class="kcal">{kcal:g}kcal</span>' if kcal is not None else ""
+    review_html = '<div class="review-badge">レビューあり</div>' if item_reviews(item) else ""
+    status = "ended" if is_ended(item) else "on_sale"
+    status_html = '<span class="st st-ended">終了</span>' if is_ended(item) else '<span class="st st-on">販売中</span>'
+    kind = item.get("limited_kind") or ""
+    return f"""<a class="item" href="/{esc(item_url(item))}" data-kcal="{kcal if kcal is not None else ''}"
+   data-date="{esc(date)}" data-chain="{esc(item['chain'])}" data-status="{status}">
+  <div class="badge">{esc(chain_name)}</div>{status_html}
+  <div class="t">{esc(item['name'])}</div>
+  <div class="price">{esc(fmt_price(item))}{kcal_html}</div>
+  <div class="meta">{esc(period_text(item))}{('・' + esc(kind)) if kind else ''}</div>
+  {review_html}
+</a>"""
+
+
+CSS = """
+:root {
+  --bg: #f4f7fb; --card: #ffffff; --text: #16202c; --muted: #5a6877;
+  --accent: __ACCENT__; --line: #dde5ee;
+__CHAIN_VARS_LIGHT__
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0e1520; --card: #172130; --text: #e6edf5; --muted: #9aa8b8;
+    --line: #29364a; --accent: #8FB4E3;
+__CHAIN_VARS_DARK__ }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text);
+  font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; line-height: 1.6; }
+a { color: inherit; }
+header { padding: 24px 16px 12px; max-width: 980px; margin: 0 auto; }
+header h1 a { text-decoration: none; font-size: 22px;
+  display: inline-flex; align-items: center; gap: 8px; }
+/* ロゴは文字とほぼ同じ高さに揃える(96px画像を縮小して表示。姉妹サイトと同じ) */
+header h1 img { width: 32px; height: 32px; }
+header p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+nav.crumbs { font-size: 12px; color: var(--muted); margin-top: 8px; }
+nav.crumbs a { text-decoration: none; color: var(--accent); }
+.sites { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.sites .lbl { font-size: 12px; color: var(--muted); }
+.sites a { font-size: 12px; padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card); text-decoration: none; }
+main { max-width: 980px; margin: 0 auto; padding: 8px 16px 48px; }
+h2 { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--accent); margin: 24px 0 12px; }
+.sort-bar { display: flex; gap: 8px; margin: 8px 0 16px; flex-wrap: wrap; align-items: center; }
+.sort-bar select, .sort-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
+.chain-group h3 { font-size: 15px; margin: 18px 0 8px; padding-left: 8px; border-left: 4px solid var(--line); }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.item { display: block; background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px; text-decoration: none; }
+.item:hover { border-color: var(--accent); }
+.item .badge { display: inline-block; font-size: 10px; font-weight: 700; color: #fff;
+  border-radius: 4px; padding: 1px 6px; margin-bottom: 6px; }
+.item .st { display: inline-block; font-size: 10px; border-radius: 4px; padding: 0 6px; margin-left: 6px;
+  border: 1px solid var(--line); color: var(--muted); }
+.item .st-on { color: var(--accent); border-color: var(--accent); }
+.item[data-status="ended"] { opacity: .82; }
+.item .t { font-size: 14px; font-weight: 600; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
+.item .price { margin-top: 6px; font-size: 13px; }
+.item .price .kcal { margin-left: 8px; color: var(--muted); }
+.item .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.monthlist { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.monthlist a { text-decoration: none; padding: 10px 14px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+.monthlist a:hover { border-color: var(--accent); }
+.monthlist .n { color: var(--muted); font-size: 12px; margin-left: 8px; }
+.chainlist { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.chainlist a { text-decoration: none; padding: 8px 16px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card); font-size: 13px; }
+.detail { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 20px; margin-top: 12px; }
+.detail h1 { font-size: 20px; margin-bottom: 8px; }
+.chain-badge { display: inline-block; font-size: 11px; font-weight: 700; color: #fff;
+  border-radius: 4px; padding: 2px 8px; }
+.detail .price { font-size: 18px; font-weight: 700; margin: 8px 0; }
+.detail .price small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.detail table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+.detail table th, .detail table td { border-bottom: 1px solid var(--line); text-align: left;
+  padding: 6px 4px; }
+.detail table th { color: var(--muted); font-weight: 500; width: 40%; }
+.detail .tablewrap { overflow-x: auto; }
+.detail table.multi th, .detail table.multi td { width: auto; text-align: right; white-space: nowrap; }
+.detail table.multi th:first-child { text-align: left; }
+.detail table.pv { max-width: 320px; }
+.detail h3 { margin-top: 16px; font-size: 14px; }
+.detail details { margin-top: 10px; font-size: 13px; }
+.detail details summary { cursor: pointer; color: var(--accent); }
+.detail blockquote { border-left: 3px solid var(--accent); margin: 12px 0; padding: 8px 14px;
+  color: var(--text); background: var(--bg); border-radius: 4px; font-size: 14px; }
+.detail .source { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.detail .warn { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.detail .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.tags span { font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; }
+.searchbox { margin: 16px 0; }
+.searchbox input { width: 100%; font-size: 14px; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
+footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); font-size: 12px;
+  border-top: 1px solid var(--line); }
+.about { max-width: 980px; margin: 40px auto 0; padding: 20px 16px 0; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 13px; line-height: 1.9; }
+.about h2 { font-size: 14px; border-left-width: 3px; margin-bottom: 8px; color: var(--text); }
+.about p { margin-top: 8px; }
+.about a { color: var(--accent); }
+.empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
+.item .review-badge { display: inline-block; margin-top: 4px; font-size: 10px; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 4px; padding: 0 5px; }
+.review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px; margin-top: 8px; }
+.review-card { display: block; background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; overflow: hidden; text-decoration: none; color: inherit; }
+.review-card:hover { border-color: var(--accent); }
+.review-card img { width: 100%; height: 110px; object-fit: cover; display: block; background: var(--line); }
+.review-card .rc-body { padding: 8px 10px; }
+.review-card .rc-t { font-size: 12.5px; font-weight: 600; display: -webkit-box;
+  -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+.review-card .rc-date { color: var(--muted); font-size: 11px; margin-top: 4px; }
+.detail .review-grid { margin-top: 4px; }
+@media (max-width: 480px) {
+  .review-grid { grid-template-columns: repeat(2, 1fr); }
+}
+/* 手動のAdSense広告枠(Auto adsは使わない)。設定が空の間は何も出力しない。
+   width:100%指定必須: グリッドやflexの中で幅が0に潰れるとAdSenseが配信に失敗する。
+   overflow:hiddenは付けない。未充填だけ畳む */
+.ad-slot { width: 100%; max-width: 960px; margin: 16px auto; background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px; text-align: center; }
+.ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
+/* カード一覧(.grid)の中に差し込まれる枠は、カード1枚ぶんのマス(列幅)を使う */
+.grid > .ad-slot { max-width: none; margin: 0; }
+"""
+
+
+def build_css() -> str:
+    accent = CONFIG.get("site_accent") or "#1E3A5F"
+    light = "\n".join(f"  --{c['slug']}: {c['color']};" for c in CHAINS)
+    dark = "\n".join(f"    --{c['slug']}: {c.get('color_dark') or c['color']};" for c in CHAINS)
+    per_chain = "".join(
+        f'.chain-group[data-chain="{c["slug"]}"] h3 {{ border-color: var(--{c["slug"]}); }}\n'
+        f'.item[data-chain="{c["slug"]}"] .badge {{ background: var(--{c["slug"]}); }}\n'
+        for c in CHAINS)
+    # ダークモードではチェーン色を明るくしているので、バッジの文字は白ではなく暗い色にして読めるようにする
+    badge_dark = "@media (prefers-color-scheme: dark) { .item .badge, .chain-badge { color: #0e1520; } }\n"
+    return (CSS.replace("__ACCENT__", accent).replace("__CHAIN_VARS_LIGHT__", light)
+            .replace("__CHAIN_VARS_DARK__", dark) + per_chain + badge_dark)
+
+
+# カード一覧の中に差し込む広告枠の間隔と、1ページ全体での上限(ヘッダー下の1枠は別)。
+# SORT_JSがこの値を使うので、変えるとJSも変わる(コンビニポチと同じ仕組み)
+ADS_EVERY = 12
+ADS_MAX_PER_GRID = 3
+
+
+def render_ad_slot() -> str:
+    """手動設置のディスプレイ広告ユニット。
+
+    adsense_client_id / adsense_ad_slot のどちらかが未設定なら何も出さない。
+    サーバー側でHTMLに置くのはヘッダー下と商品ページの枠だけ。カード一覧(.grid)の
+    中の枠は、並び替え・絞り込みのたびに位置が変わるのでSORT_JSが差し込む
+    (render_ad_template参照)。push(読み込み)は枠ごとのインラインscriptではなく、
+    ページ下部のAD_JS(syncAds)がまとめて行う。
+    data-ad-formatはrectangle(autoだと縦長の広告が来る)
+    """
+    ad_slot = CONFIG.get("adsense_ad_slot", "")
+    adsense_id = CONFIG.get("adsense_client_id", "")
+    if not ad_slot or not adsense_id:
+        return ""
+    return f"""<div class="ad-slot">
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="{esc(adsense_id)}"
+     data-ad-slot="{esc(ad_slot)}"
+     data-ad-format="rectangle"
+     data-full-width-responsive="true"></ins>
+</div>"""
+
+
+def render_ad_template() -> str:
+    """SORT_JSがカード一覧に差し込む広告枠の雛形。広告未設定なら空(=JSは何も差し込まない)。
+
+    <template>の中身はDOMに入らないので、これ自体はpushされない。
+    JS無効・検索エンジンにはカードだけが全件見える"""
+    ad = render_ad_slot()
+    return f'<template id="ad-template">{ad}</template>' if ad else ""
+
+
+# 広告のpush(AdSenseへ読み込みを依頼する)をまとめて行う。広告が設定されているページだけに入る。
+# 一度pushした<ins>は再利用できないので、印(dataset.pushed)を付けて二重pushを防ぐ。
+# 隠れている枠は幅0で失敗し、あとで表示しても二度と入らないので、adsbygoogleクラスを
+# 外してAdSenseの対象から除外しておく(次のsyncAdsで表示中なら戻してpushする)
+AD_JS = """
+<script>
+function syncAds() {
+  document.querySelectorAll("ins[data-ad-slot]").forEach(function (ins) {
+    if (ins.dataset.pushed) return;
+    if (ins.offsetParent === null) {
+      ins.classList.remove("adsbygoogle");
+      return;
+    }
+    ins.classList.add("adsbygoogle");
+    ins.dataset.pushed = "1";
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  });
+}
+syncAds();
+</script>
+"""
+
+
+def updated_label(now: datetime.datetime | None = None) -> str:
+    """トップの「最終更新: 2026年10月14日 07:37」。電書・家電・林檎ポチと同じ書式(日本時間)。
+    トップページだけに出す(全ページに入れると、毎日すべてのページのファイルが変わってしまう)。"""
+    now = now or datetime.datetime.now(JST)
+    return f"最終更新: {now.strftime('%Y年%m月%d日 %H:%M')}"
+
+
+def page_shell(title: str, description: str, body: str, canonical: str, extra_head: str = "",
+               header_ad: bool = False, header_note: str = "") -> str:
+    site_url = CONFIG.get("site_url", "")
+    # トップページのtitleは、サイト名のあとに説明を添える(姉妹サイトと同じ「名前｜説明」の形)
+    page_title = (f'{esc(title)}｜{esc(CONFIG["site_title"])}' if title != CONFIG["site_title"]
+                  else esc(CONFIG.get("top_title") or title))
+
+    ga_id = CONFIG.get("ga_measurement_id")
+    ga_tag = ""
+    if ga_id:
+        ga_tag = (
+            f'<script async src="https://www.googletagmanager.com/gtag/js?id={esc(ga_id)}"></script>\n'
+            "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}"
+            f"gtag('js',new Date());gtag('config','{esc(ga_id)}');</script>"
+        )
+
+    adsense_id = CONFIG.get("adsense_client_id", "")
+    adsense_tag = (
+        '<script async src="https://pagead2.googlesyndication.com/pagead/js/'
+        f'adsbygoogle.js?client={esc(adsense_id)}" crossorigin="anonymous"></script>'
+        if adsense_id else ""
+    )
+    header_ad_html = render_ad_slot() if header_ad else ""
+    ad_js = AD_JS if adsense_id and CONFIG.get("adsense_ad_slot") else ""
+
+    # 見出しの左に置くポチシリーズ共通のアイコン。画像が置かれていなければ何も出さない
+    logo_img = (
+        '<img src="/assets/logo.png" alt="" width="32" height="32">'
+        if has_asset("logo.png") else ""
+    )
+    icon_tags = []
+    if has_asset("favicon.png"):
+        # Googleの検索結果に出るファビコンは48pxの倍数が必要(32pxだと地球儀になる。
+        # コンビニポチで2026-10-07に判明)。favicon.png は96px。sizes を明示する
+        icon_tags.append('<link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon.png">')
+    if has_asset("apple-touch-icon.png"):
+        icon_tags.append('<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">')
+    ogp_tags = []
+    if has_asset("ogp.jpg"):
+        ogp_tags = [
+            f'<meta property="og:image" content="{esc(site_url)}assets/ogp.jpg">',
+            '<meta property="og:image:width" content="1200">',
+            '<meta property="og:image:height" content="630">',
+            '<meta name="twitter:card" content="summary_large_image">',
+        ]
+
+    related = CONFIG.get("related_sites") or []
+    links = "\n".join(
+        f'<a href="{esc(s["url"])}">{esc(s["name"])}'
+        + (f'<span class="lbl"> {esc(s["desc"])}</span>' if s.get("desc") else "")
+        + "</a>"
+        for s in related
+    )
+    related_html = f'<nav class="sites"><span class="lbl">関連サイト</span>\n{links}\n</nav>' if related else ""
+
+    official_links = " ／ ".join(
+        f'<a href="{esc(CHAIN_OFFICIAL[c["slug"]]["url"])}">{esc(c["name"])}</a>'
+        for c in CHAINS if c["slug"] in CHAIN_OFFICIAL)
+    policy_url = CONFIG.get("policy_url", "")
+    policy_link = (
+        f'｜ <a href="{esc(policy_url)}">メディアポリシー</a>\n' if policy_url else ""
+    )
+
+    out = f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{page_title}</title>
+<meta name="description" content="{esc(description)}">
+<link rel="canonical" href="{esc(canonical)}">
+{ga_tag}
+{adsense_tag}
+{chr(10).join(icon_tags)}
+<meta property="og:type" content="website">
+<meta property="og:title" content="{page_title}">
+<meta property="og:description" content="{esc(description)}">
+<meta property="og:url" content="{esc(canonical)}">
+<meta property="og:site_name" content="{esc(CONFIG['site_title'])}">
+<meta property="og:locale" content="ja_JP">
+{chr(10).join(ogp_tags)}
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml">
+<style>{build_css()}</style>
+{extra_head}
+</head>
+<body>
+<header>
+<h1><a href="/">{logo_img}{esc(CONFIG["site_title"])}</a></h1>
+<p>{esc(CONFIG["site_description"])}{(" ｜ " + esc(header_note)) if header_note else ""}</p>
+{related_html}
+</header>
+{header_ad_html}
+<main>
+{body}
+</main>
+<footer>
+価格は公式サイトの表示（スシローは特定の1店舗・巣本店の値）で、店舗により異なります。販売期間・販売状況は取得した時点のものです。最新の状況は各社公式サイトでご確認ください。
+当サイトは{esc(CHAIN_LIST_TEXT)}各社とは関係のない非公式サイトです。記録しているのは事実情報だけで、説明文・画像は載せていません。
+公式サイト： {official_links}
+{policy_link}｜ <a href="/rss.xml">RSS</a> ｜ <a href="/archive/">終了した期間限定ネタ</a>
+{related_html}
+</footer>
+{ad_js}
+</body>
+</html>
+"""
+    if adsense_id:
+        # AdSenseダッシュボードではvignette(全画面)広告をサブドメイン単位で無効化
+        # できないため、リンクごとにdata-google-vignette="false"を付ける
+        out = re.sub(r'<a (?![^>]*data-google-vignette)', '<a data-google-vignette="false" ', out)
+    return out
+
+
+# 広告の配置計算。DOMに触れない純粋関数(テストからnodeで単体実行する)。
+# counts: グリッドごとの「見えているカード数」(見えていないグリッドは0)
+# 返り値: グリッドごとの、広告を差し込む位置(その位置のカードの直前)の配列
+AD_PLAN_JS = """
+function computeAdPlan(counts, every, max) {
+  var eligible = [];
+  counts.forEach(function (n, i) { if (n > every) eligible.push(i); });
+  var chosen = eligible;
+  if (eligible.length > max) {
+    chosen = [];
+    for (var k = 0; k < max; k++) chosen.push(eligible[Math.floor(k * eligible.length / max)]);
+  }
+  var perGrid = Math.max(1, Math.floor(max / (chosen.length || 1)));
+  var left = max;
+  var plan = counts.map(function () { return []; });
+  chosen.forEach(function (gi) {
+    var placed = 0;
+    for (var i = every; i < counts[gi] && left > 0 && placed < perGrid; i += every) {
+      plan[gi].push(i);
+      left--;
+      placed++;
+    }
+  });
+  return plan;
+}
+"""
+
+
+SORT_JS = """
+<script>
+__AD_PLAN__(function () {
+  // チェーンごとのグループ(.chain-group)内でだけ並び替える。絞り込みはカード単位・グループ単位で隠す
+  var grids = Array.prototype.slice.call(document.querySelectorAll('[data-sortable]'));
+  if (!grids.length) return;
+  var select = document.getElementById('sort-select');
+  var chainSel = document.getElementById('chain-filter');
+  var statusSel = document.getElementById('status-filter');
+  // 広告枠。サーバー側はグリッドに枠を置かず、並び替え・絞り込みのたびにここで差し込み直す。
+  // 雛形(#ad-template)が無ければ(広告未設定・非対応ブラウザ)何もしない
+  var AD_EVERY = __ADS_EVERY__;
+  var AD_MAX = __ADS_MAX__;
+  var adTpl = document.getElementById('ad-template');
+  function placeAds() {
+    var proto = adTpl && adTpl.content && adTpl.content.firstElementChild;
+    if (!proto) return;
+    // 広告枠(.ad-slot)は、表示済みの広告を読み込み直さないよう、DOMから外さない。
+    // 並べ替えで動かすのはカード(.item)だけ。枠をDOMから外すのは、下の「余った枠を捨てる」1か所だけ。
+    // 必要な枠数が今の枠数と同じなら枠はそのまま、足りない分だけ新規に作る(pushは新しい枠だけ)。
+    // 見えていないグリッドの枠は触らず残しておき、再表示されたら再利用する
+    var allItems = function (g) { return Array.prototype.slice.call(g.querySelectorAll('.item')); };
+    // 販売状況の絞り込みで隠れたカードは数えない
+    var visibleItems = function (g) {
+      return allItems(g).filter(function (el) { return el.style.display !== 'none'; });
+    };
+    var shown = grids.map(function (g) { return g.offsetParent !== null; });
+    var counts = grids.map(function (g, i) { return shown[i] ? visibleItems(g).length : 0; });
+    var plan = computeAdPlan(counts, AD_EVERY, AD_MAX);
+    grids.forEach(function (grid, gi) {
+      if (!shown[gi]) return;
+      var pos = plan[gi];
+      var slots = Array.prototype.filter.call(grid.children, function (el) {
+        return el.classList.contains('ad-slot');
+      });
+      while (slots.length > pos.length) {
+        var extra = slots.pop();
+        extra.parentNode.removeChild(extra);
+      }
+      while (slots.length < pos.length) {
+        var fresh = proto.cloneNode(true);
+        grid.appendChild(fresh);
+        slots.push(fresh);
+      }
+      if (!slots.length) return;
+      var put = function (el, ref) {
+        if (el.classList.contains('ad-slot')) return;
+        if (ref) grid.insertBefore(el, ref); else grid.appendChild(el);
+      };
+      var vis = visibleItems(grid);
+      var hidden = allItems(grid).filter(function (el) { return vis.indexOf(el) < 0; });
+      var from = 0;
+      pos.forEach(function (p, j) {
+        for (var k = from; k < p; k++) put(vis[k], slots[j]);
+        from = p;
+      });
+      for (var k = from; k < vis.length; k++) put(vis[k], null);
+      hidden.forEach(function (el) { put(el, null); });
+    });
+  }
+  function apply() {
+    var mode = select ? select.value : 'date';
+    var chain = chainSel ? chainSel.value : 'all';
+    var status = statusSel ? statusSel.value : 'all';
+    grids.forEach(function (grid) {
+      var group = grid.closest('.chain-group');
+      var items = Array.prototype.slice.call(grid.querySelectorAll('.item'));
+      items.sort(function (a, b) {
+        if (mode === 'kcal') {
+          return parseFloat(b.dataset.kcal || '-1') - parseFloat(a.dataset.kcal || '-1');
+        }
+        return (b.dataset.date || '').localeCompare(a.dataset.date || '');
+      });
+      var visible = 0;
+      items.forEach(function (el) {
+        grid.appendChild(el);
+        var show = status === 'all' || el.dataset.status === status;
+        el.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (group) {
+        var chainOk = chain === 'all' || group.dataset.chain === chain;
+        group.style.display = (chainOk && visible > 0) ? '' : 'none';
+        var cnt = group.querySelector('.cnt');
+        if (cnt) cnt.textContent = visible;
+      }
+    });
+    placeAds();
+    // 初回はページ末尾のAD_JSがpushするので、まだ無ければ何もしない
+    if (window.syncAds) window.syncAds();
+  }
+  if (select) select.addEventListener('change', apply);
+  if (chainSel) chainSel.addEventListener('change', apply);
+  if (statusSel) statusSel.addEventListener('change', apply);
+  apply();
+})();
+</script>
+""".replace("__AD_PLAN__", AD_PLAN_JS).replace("__ADS_EVERY__", str(ADS_EVERY)).replace("__ADS_MAX__", str(ADS_MAX_PER_GRID))
+
+
+def render_grouped(items: list[dict], sortable: bool = True) -> str:
+    """商品をチェーンごと(config.jsonのchains順)にまとめ、各チェーンの中は販売開始日の新しい順に並べる。"""
+    attr = " data-sortable" if sortable else ""
+    sections = []
+    active = [c for c in CHAINS if any(it["chain"] == c["slug"] for it in items)]
+    for c in active:
+        group = [it for it in items if it["chain"] == c["slug"]]
+        group.sort(key=lambda it: effective_date(it) or "", reverse=True)
+        cards = "\n".join(render_card(it) for it in group)
+        sections.append(
+            f'<section class="chain-group" data-chain="{esc(c["slug"])}">\n'
+            f'<h3>{esc(c["name"])} (<span class="cnt">{len(group)}</span>件)</h3>\n'
+            # 広告枠はここでは置かない(SORT_JSが見えているカードの間に差し込む)
+            f'<div class="grid"{attr}>\n{cards}\n</div>\n</section>'
+        )
+    return "\n".join(sections)
+
+
+SEARCH_JS = """
+<script>
+(function () {
+  var box = document.getElementById('search-input');
+  var results = document.getElementById('search-results');
+  if (!box || !results) return;
+  var index = null;
+  box.addEventListener('input', function () {
+    var q = box.value.trim();
+    if (!q) { results.innerHTML = ''; return; }
+    function render() {
+      var lower = q.toLowerCase();
+      var hits = index.filter(function (it) {
+        return it.n.toLowerCase().indexOf(lower) !== -1;
+      }).slice(0, 50);
+      results.innerHTML = hits.map(function (it) {
+        return '<a class="item" data-chain="' + it.c + '" href="' + it.u + '">' +
+          '<div class="badge">' + it.cn + '</div><div class="t">' + it.n +
+          '</div><div class="meta">' + (it.d || '') + (it.s === 'ended' ? '　終了' : '') + '</div></a>';
+      }).join('');
+    }
+    if (index) { render(); return; }
+    fetch('/search-index.json').then(function (r) { return r.json(); }).then(function (data) {
+      index = data; render();
+    });
+  });
+})();
+</script>
+"""
+
+
+def build_search_index(items: list[dict]) -> list[dict]:
+    return [
+        {
+            "n": it["name"],
+            "u": "/" + item_url(it),
+            "c": it["chain"],
+            "cn": CHAIN_NAME.get(it["chain"], it["chain"]),
+            "d": effective_date(it) or "",
+            "s": "ended" if is_ended(it) else "on_sale",
+        }
+        for it in items
+    ]
+
+
+def filter_bar(status: bool = True, default_status: str = "on_sale") -> str:
+    """並び替え・販売状況・チェーンの絞り込み。[data-sortable]の外に置く。"""
+    status_sel = ""
+    if status:
+        opts = [("on_sale", "販売中"), ("ended", "終了"), ("all", "すべて")]
+        options = "".join(
+            f'<option value="{v}"{" selected" if v == default_status else ""}>{n}</option>' for v, n in opts)
+        status_sel = f'\n<label>販売状況: <select id="status-filter">{options}</select></label>'
+    chain_opts = "".join(f'<option value="{esc(c["slug"])}">{esc(c["name"])}</option>' for c in CHAINS)
+    return f"""<div class="sort-bar">
+<label>並び替え: <select id="sort-select"><option value="date">開始日順</option>
+<option value="kcal">カロリー順</option></select></label>{status_sel}
+<label>絞り込み: <select id="chain-filter"><option value="all">すべて</option>{chain_opts}</select></label>
+</div>"""
+
+
+def render_grid_page(title: str, description: str, items: list[dict], canonical: str,
+                      show_filters: bool = True, review_chain: str | None = None,
+                      status_filter: bool = False, default_status: str = "all",
+                      empty_text: str = "商品がありません。") -> str:
+    reviews_section = render_review_cards("ネタフルの最新レビュー", latest_reviews(review_chain, 5))
+    if not items:
+        body = f"<h2>{esc(title)}</h2><p class='empty'>{esc(empty_text)}</p>\n{reviews_section}"
+        return page_shell(title, description, body, canonical)
+    filters = filter_bar(status_filter, default_status) if show_filters else ""
+    on = sum(1 for it in items if not is_ended(it))
+    count_text = f"{len(items)}件" if not status_filter else f"{len(items)}件・販売中{on}件"
+    body = f"""<h2>{esc(title)} ({count_text})</h2>
+{filters}
+{render_grouped(items)}
+{render_ad_template() if show_filters else ""}
+{SORT_JS if show_filters else ""}
+{reviews_section}"""
+    return page_shell(title, description, body, canonical, header_ad=True)
+
+
+RECENT_ENDED_DAYS = 30
+
+
+def recently_ended(items: list[dict], today: datetime.date) -> list[dict]:
+    out = []
+    for it in items:
+        if not is_ended(it):
+            continue
+        try:
+            d = datetime.date.fromisoformat(it.get("ended_observed_at") or "")
+        except ValueError:
+            continue
+        if (today - d).days <= RECENT_ENDED_DAYS:
+            out.append(it)
+    return out
+
+
+def render_about() -> str:
+    about = CONFIG.get("about") or []
+    if not about:
+        return ""
+    link = '<a href="https://netaful.jp/">ネタフル</a>'
+    paras = "\n".join(f"<p>{esc(x).replace('{{ネタフル}}', link)}</p>" for x in about)
+    return f'<section class="about"><h2>{esc(CONFIG["site_title"])}について</h2>\n{paras}\n</section>'
+
+
+def render_top(items: list[dict], today: datetime.date | None = None) -> str:
+    today = today or datetime.datetime.now(JST).date()
+    on_sale = [it for it in items if not is_ended(it)]
+    # 切り替えフィルタ(販売中/終了)が効くよう、最近終わったものも載せておく。
+    # 既定は「販売中」なので、JSが動けば見えるのは販売中だけ
+    shown = on_sale + recently_ended(items, today)
+    ended_total = sum(1 for it in items if is_ended(it))
+    site_url = CONFIG.get("site_url", "")
+
+    search_html = """<div class="searchbox"><input id="search-input" type="search"
+placeholder="ネタ・メニュー名で検索（例: まぐろ、サーモン、かに）"></div>
+<div class="grid" id="search-results"></div>"""
+    chain_links = "\n".join(
+        f'<a href="/chains/{c["slug"]}/">{esc(c["name"])}</a>' for c in CHAINS
+    )
+    archive_link = (
+        f'<p><a href="/archive/">終了した期間限定ネタのアーカイブ（{ended_total}件）を見る →</a></p>'
+        if ended_total else ""
+    )
+    if shown:
+        list_section = f"""<h2>販売中の期間限定ネタ ({len(on_sale)}件)</h2>
+{filter_bar(True, "on_sale")}
+{render_grouped(shown)}
+{render_ad_template()}
+{SORT_JS}"""
+    else:
+        list_section = "<h2>販売中の期間限定ネタ</h2><p class='empty'>まだ記録がありません。</p>"
+
+    store = (CONFIG.get("sushiro") or {}).get("store_label") or "巣本店"
+    price_scope = (f'<p class="note" id="price-scope">価格は各社公式サイトの表示です（スシローは代表の1店舗・{esc(store)}の価格）。'
+                   "店舗によって価格が異なります。</p>")
+    body = f"""<div class="chainlist">
+{chain_links}
+</div>
+{price_scope}
+<h2>メニュー名で検索</h2>
+{search_html}
+{SEARCH_JS}
+{render_review_cards("ネタフルの最新レビュー", latest_reviews(None, 6))}
+{list_section}
+{archive_link}
+{render_about()}"""
+    # 検索結果のサイト名。サブドメイン(sushi.netaful.jp)は何も指定しないと親ドメインの
+    # 「ネタフル」と表示されるので、トップページに WebSite 構造化データでサイト名を伝える
+    # (コンビニポチで2026-10-07に判明した対処を最初から入れている)
+    site_name_ld = json.dumps({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": CONFIG["site_title"],
+        "alternateName": ["Sushi Pochi", "回転寿司ポチ"],
+        "url": site_url,
+    }, ensure_ascii=False)
+    return page_shell(
+        CONFIG["site_title"], CONFIG["site_description"], body, site_url,
+        extra_head=f'<script type="application/ld+json">{site_name_ld}</script>',
+        header_ad=True,
+        header_note=updated_label(),
+    )
+
+
+def start_month(item: dict) -> str | None:
+    d = effective_date(item)
+    return d[:7] if d and re.match(r"^\d{4}-\d{2}", d) else None
+
+
+def ended_items(items: list[dict]) -> list[dict]:
+    return [it for it in items if is_ended(it)]
+
+
+def render_archive_index(items: list[dict]) -> str:
+    ended = ended_items(items)
+    by_month: dict[str, int] = {}
+    for it in ended:
+        m = start_month(it)
+        if m:
+            by_month[m] = by_month.get(m, 0) + 1
+    if not by_month:
+        body = ("<h2>終了した期間限定ネタ</h2>"
+                "<p class='empty'>まだ販売が終わったメニューはありません。"
+                "公式サイトの一覧から消えたことを連続で確認すると、ここに並びます。</p>")
+    else:
+        rows = "\n".join(
+            f'<a href="/archive/{m}/">{m[:4]}年{int(m[5:7])}月に始まった期間限定ネタ<span class="n">{n}件</span></a>'
+            for m, n in sorted(by_month.items(), reverse=True)
+        )
+        body = f"""<h2>終了した期間限定ネタ ({len(ended)}件)</h2>
+<p class="empty">販売開始月ごとにまとめています。終了日は公式サイトの一覧から消えたことを確認した日です。</p>
+<div class="monthlist">
+{rows}
+</div>"""
+    return page_shell("終了した期間限定ネタ", f"販売が終わった{CHAIN_LIST_TEXT}の期間限定ネタを、販売開始月ごとにまとめたアーカイブ",
+                       body, CONFIG.get("site_url", "") + "archive/")
+
+
+def render_chains_top() -> str:
+    links = "\n".join(f'<a href="/chains/{c["slug"]}/">{esc(c["name"])}</a>' for c in CHAINS)
+    body = f'<h2>チェーン一覧</h2><div class="chainlist">{links}</div>'
+    return page_shell("チェーン一覧", f"{CHAIN_LIST_TEXT}の期間限定ネタ一覧", body,
+                       CONFIG.get("site_url", "") + "chains/")
+
+
+NUTRITION_LABELS = [
+    ("kcal", "熱量", "kcal"), ("protein_g", "たんぱく質", "g"),
+    ("fat_g", "脂質", "g"), ("carbs_g", "炭水化物", "g"),
+    ("sugar_g", "　糖類", "g"), ("fiber_g", "　食物繊維", "g"),
+    ("salt_g", "食塩相当量", "g"),
+]
+# 「ほか」の項目がこの数以下ならそのまま表に並べ、超えたら折りたたむ
+OTHER_INLINE_MAX = 5
+
+
+def _nutrition_rows(nut: dict) -> list[tuple[str, str]]:
+    rows = []
+    for key, label, unit in NUTRITION_LABELS:
+        v = nut.get(key)
+        if v is not None:
+            rows.append((label, f"{v:g}{unit}"))
+    return rows
+
+
+def link_html(label: str, url: str | None) -> str:
+    if not url:
+        return esc(label)
+    return f'<a href="{esc(url)}" target="_blank" rel="noopener">{esc(label)}</a>'
+
+
+def source_note(src: dict | None, what: str) -> str:
+    if not src or not src.get("url"):
+        return ""
+    return f"<p class='note'>出典：{link_html(src.get('label') or '公式サイト', src['url'])}（{esc(what)}は公式の表示を転記）。</p>"
+
+
+def render_nutrition(item: dict) -> str:
+    nut = item.get("nutrition")
+    if not nut:
+        src = item.get("nutrition_source") or {}
+        link = (f"<p class='note'>公式サイトでご確認ください：{link_html(src.get('label') or '公式サイト', src.get('url'))}</p>"
+                if src.get("url") else "")
+        return ("<h3>カロリー</h3><p class='note'>この商品のカロリーは、当サイトでは取り込めていません"
+                f"（公式サイトに掲載がない、または名前が一致しませんでした）。</p>{link}")
+    variants = item.get("nutrition_variants") or []
+    note = f"<p class='note'>{esc(item['nutrition_note'].rstrip('。'))}。</p>" if item.get("nutrition_note") else ""
+    if len(variants) > 1:
+        only_kcal = all({k for k, v in (x["nutrition"] or {}).items() if v is not None and k != "other"} <= {"kcal"}
+                        for x in variants)
+        if only_kcal:
+            rows = "".join(f"<tr><th>{esc(x.get('label') or '標準')}</th><td>{x['nutrition']['kcal']:g}kcal</td></tr>"
+                           for x in variants)
+            return (f"<h3>カロリー</h3><table>{rows}</table>{note}"
+                    f"{source_note(item.get('nutrition_source'), 'カロリー')}")
+        parsed = [(v.get("label") or "標準", _nutrition_rows(v["nutrition"])) for v in variants]
+        row_labels: list[str] = []
+        for _, rows in parsed:
+            for lb, _v in rows:
+                if lb not in row_labels:
+                    row_labels.append(lb)
+        head = "<tr><th></th>" + "".join(f"<th>{esc(lb)}</th>" for lb, _ in parsed) + "</tr>"
+        body_rows = ""
+        for rl in row_labels:
+            cells = "".join(f"<td>{esc(dict(rows).get(rl, '－'))}</td>" for _, rows in parsed)
+            body_rows += f"<tr><th>{esc(rl)}</th>{cells}</tr>"
+        return (f"<h3>カロリー</h3><div class='tablewrap'><table class='multi'>{head}{body_rows}</table></div>"
+                f"{note}{source_note(item.get('nutrition_source'), 'カロリー')}")
+    trs = "".join(f"<tr><th>{esc(label)}</th><td>{esc(val)}</td></tr>" for label, val in _nutrition_rows(nut))
+    other = nut.get("other") or {}
+    inline_rows, details = "", ""
+    if other:
+        rows = "".join(f"<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>" for k, v in other.items())
+        if len(other) <= OTHER_INLINE_MAX:
+            inline_rows = rows
+        else:
+            details = (f"<details><summary>そのほかの栄養成分（{len(other)}項目）を見る</summary>"
+                       f"<table>{rows}</table></details>")
+    label = item.get("nutrition_label") or (variants[0].get("label") if variants else None) or ""
+    head = f"<h3>カロリー{('（' + esc(label) + '）') if label else ''}</h3>"
+    return (f"{head}<table>{trs}{inline_rows}</table>{details}{note}"
+            f"{source_note(item.get('nutrition_source'), 'カロリー')}")
+
+
+def render_allergens(item: dict) -> str:
+    a = item.get("allergens")
+    if a is None:
+        src = item.get("allergen_source") or {}
+        if src.get("url"):
+            return ("<p class='note'>アレルギー情報は当サイトでは取り込めていません"
+                    "（公式の表に同じ名前の行が見つからない、または公式の表を読み取れていません）。公式サイトでご確認ください："
+                    f"{link_html(src.get('label') or '公式サイト', src['url'])}</p>")
+        return ""
+    contains = a.get("contains") or []
+    text = "、".join(contains) if contains else "公式の表で「含む」とされた品目はありません"
+    html_ = f"<p class='tags'><strong>アレルゲン（含む）：</strong>{esc(text)}</p>"
+    partial = a.get("partial") or []
+    if partial:
+        ptxt = "、".join(f"{p['name']}{p['mark']}" for p in partial)
+        mark = partial[0]["mark"]
+        meaning = a.get("partial_meaning")
+        html_ += (f"<p class='note'>条件つきの表示（{esc(mark)}）：{esc(ptxt)}"
+                  + (f"（公式の凡例：{esc(meaning)}）" if meaning else "") + "</p>")
+    if item.get("allergen_note"):
+        html_ += f"<p class='note'>{esc(item['allergen_note'].rstrip('。'))}。</p>"
+    html_ += "<p class='note'>最終的な判断は、各社公式サイトの最新のアレルギー情報でご確認ください。</p>"
+    src = item.get("allergen_source") or {}
+    if src.get("url"):
+        vt = src.get("version_text")
+        html_ += (f"<p class='note'>出典：{link_html(src.get('label') or '公式サイト', src['url'])}"
+                  + (f"（{esc(vt)}）" if vt else "") + "のアレルゲンを転記。</p>")
+    return html_
+
+
+def render_price_variants(item: dict) -> str:
+    """サイズ別・販売チャネル別など、複数の価格があるとき内訳を表にする。"""
+    pv = item.get("price_variants") or []
+    if len(pv) < 2:
+        return ""
+    rows = "".join(f"<tr><th>{esc(v.get('label') or '標準')}</th><td>{v['price']:,g}円（税込）</td></tr>" for v in pv)
+    return f"<table class='pv'>{rows}</table>"
+
+
+def render_price_history(item: dict) -> str:
+    hist = item.get("price_history") or []
+    if len(hist) <= 1:
+        return ""
+
+    def one(h: dict) -> str:
+        pm = h.get("price_max")
+        s = f"{h['price']:,g}〜{pm:,g}円" if pm is not None and pm != h["price"] else f"{h['price']:,g}円"
+        return s + ("（再登場時）" if h.get("relaunch") else "")
+
+    rows = "".join(f"<tr><th>{esc(h['date'])}〜</th><td>{esc(one(h))}</td></tr>" for h in hist)
+    return (f"<h3>価格の履歴</h3><table>{rows}</table>"
+            "<p class='note'>公式サイトに出ていた価格を、変わった日に記録しています。</p>")
+
+
+def seo_title(item: dict) -> str:
+    chain_name = CHAIN_NAME.get(item["chain"], item["chain"])
+    nut = item.get("nutrition") or {}
+    facts = "カロリー・価格・アレルゲン" if nut.get("kcal") is not None else "価格・アレルゲン・販売期間"
+    return f"{chain_name}「{item['name']}」の{facts}"
+
+
+def seo_description(item: dict) -> str:
+    chain_name = CHAIN_NAME.get(item["chain"], item["chain"])
+    nut = item.get("nutrition") or {}
+    bits = [f"{chain_name}の{item.get('limited_kind') or 'メニュー'}「{item['name']}」"]
+    if nut.get("kcal") is not None:
+        bits.append(f"{nut['kcal']:g}kcal")
+    price = fmt_price(item)
+    if price:
+        bits.append(price)
+    bits.append(period_text(item))
+    return ("、".join(bits) + "。")[:200]
+
+
+LAUNCH_SOURCE_LABEL = {
+    "menu_period": "公式のメニューに載っている販売期間の表記",
+    "official_json": "公式のメニューデータ（販売開始日）",
+    "official_news": "公式のトピックの見出し",
+    # 商品名が見出しに無く、本文に載っていた記事。記事が複数の商品を扱うため、商品ごとの発売日とずれることがある
+    "official_news_body": "公式のトピックの本文に商品名が載っていた記事(複数の商品をまとめた記事のため、商品ごとの発売日とずれることがあります)",
+}
+RECORD_REASON = {
+    "sushiro": "公式サイトの店舗別メニューで、販売期間の注記（[M/D～M/D]）が付いている",
+    "kurasushi": "公式サイトのメニューで、フェアの商品として載っている",
+    "hamazushi": "公式サイトのメニューの「期間限定」に載っている",
+    "kappasushi": "公式サイトのメニューデータで、「期間限定ネタ」に入っている",
+}
+# 価格が店舗で違うことの、チェーンごとの具体的な説明(商品ページに出す)
+PRICE_SCOPE = {
+    "sushiro": "スシローの価格は、代表の1店舗（{store}）の公式メニューの表示です。同じ商品でも店舗によって価格が違います（例：110円と140円）。",
+    "kurasushi": "くら寿司の価格は、公式メニューの標準の表示（［一皿110円〜店舗］の区分）です。店舗により価格が異なります。",
+    "hamazushi": "はま寿司の価格は、公式メニューの全国の表示です。一部店舗（北海道など）では価格が異なります。",
+    "kappasushi": "かっぱ寿司の価格は、公式メニューデータの店内の税込価格（持ち帰りは別に併記）です。店舗により異なることがあります。",
+}
+
+
+def price_scope_text(chain: str) -> str:
+    store = (CONFIG.get("sushiro") or {}).get("store_label") or "巣本店"
+    return PRICE_SCOPE.get(chain, "価格は店舗により異なります。").replace("{store}", store)
+
+
+def render_notes(item: dict) -> str:
+    """記録の理由、発売日の出どころ、価格の店舗差、チェーンごとの注意、昨季の販売期間。"""
+    notes = []
+    chain = item["chain"]
+    kind = item.get("limited_kind")
+    notes.append(f"{RECORD_REASON.get(chain, '公式サイトの一覧に載った')}メニューです"
+                 + (f"（記録上の区分：{esc(kind)}）。" if kind else "。"))
+    notes.append(esc(price_scope_text(chain)))
+    if item.get("launch_date"):
+        src = LAUNCH_SOURCE_LABEL.get(item.get("launch_date_source"), "公式の発表")
+        title = item.get("news_title") or ""
+        link = item.get("news_url") or ""
+        if item.get("launch_date_source") in ("official_news", "official_news_body"):
+            tl = f'<a href="{esc(link)}" target="_blank" rel="noopener">{esc(title)}</a>' if link and title else esc(title)
+            notes.append(f"発売日は{esc(src)}（{esc(item.get('news_date') or '')}）によります：{tl}")
+        else:
+            notes.append(f"発売日は{esc(src)}によります。")
+    else:
+        notes.append("公式の表示から発売日を拾えなかったため、記録を始めた日（記録開始日）から表示しています。発売日ではありません。")
+    if item.get("ended_basis") == "official_close_date":
+        notes.append("終了日は、公式のメニューデータに載っている販売終了日です。")
+    else:
+        notes.append("終了日は公式の最終販売日ではなく、公式サイトの一覧から消えたことを確認した日です。"
+                     "一覧から外れただけで、店頭ではまだ販売していることもあります。")
+    if chain == "sushiro":
+        notes.append("スシローの期間限定は「完売次第終了」の注記が付くことが多く、予定より早く終わることがあります。")
+    if chain == "hamazushi":
+        notes.append("はま寿司の公式サイトの商品ページにはカロリーが無く、アレルゲン一覧表（PDF）の「熱量（一皿）」の値を載せています。")
+    if item.get("stores_note"):
+        notes.append(f"取り扱い：{esc(item['stores_note'])}")
+    for s_ in item.get("seasons") or []:
+        start = s_.get("launch_date") or (f"{s_['observed_start']}（記録開始日）" if s_.get("observed_start") else "開始日不明")
+        notes.append(f"昨季の掲載：{esc(start)}〜{esc(s_.get('ended_observed_at') or '')}（終了日は{ENDED_NOTE}）")
+    for ch in item.get("nutrition_changes") or []:
+        if ch.get("from_kcal") is not None and ch.get("to_kcal") is not None:
+            notes.append(f"公式のカロリーの値が{esc(ch['date'])}に更新されました（{ch['from_kcal']:g}kcal → {ch['to_kcal']:g}kcal）。")
+        else:
+            notes.append(f"公式のカロリーの値が{esc(ch['date'])}に更新されました。")
+    return "".join(f"<p class='note'>{n}</p>" for n in notes)
+
+
+def render_sources(item: dict) -> str:
+    """公式ページ(とあれば公式のお知らせ)へのリンクを、出典として出す。説明文は載せない。"""
+    chain = item["chain"]
+    chain_name = CHAIN_NAME.get(chain, chain)
+    off = CHAIN_OFFICIAL.get(chain, {})
+    links = []
+    if item.get("official_url"):
+        links.append(link_html("公式のメニューページ", item["official_url"]))
+    if item.get("news_url"):
+        links.append(link_html("公式のお知らせ・トピック", item["news_url"]))
+    if off.get("url"):
+        links.append(link_html(f"{chain_name}公式サイト", off["url"]))
+    fetched = (item.get("first_seen_at") or "")[:10]
+    return (f"<p class='source'>出典：{esc(CHAIN_SOURCE.get(chain, chain_name + '公式サイト'))}（{esc(fetched)}取得時点）。"
+            "商品名・価格・日付・カロリー・アレルゲンなどの事実情報を記録しています。説明文・画像は載せていません。</p>"
+            f"<p class='source'>{' ・ '.join(links)}</p>"
+            "<p class='warn'>※販売終了後は公式ページが削除されている場合があります。</p>")
+
+
+def render_item_page(item: dict) -> str:
+    chain_name = CHAIN_NAME.get(item["chain"], item["chain"])
+
+    reviews_html = ""
+    reviews = item_reviews(item)
+    if reviews:
+        reviews_html = f"""<h3>ネタフルのレビュー</h3>
+<div class="review-grid">
+{chr(10).join(render_review_card(a) for a in reviews)}
+</div>"""
+
+    related_html = ""
+    related = select_related_articles(item, ARTICLES_BY_ID)
+    if related:
+        label, related_articles_list = related
+        related_html = f"""<h3>関連するネタフルの記事（{esc(label)}）</h3>
+<div class="review-grid">
+{chr(10).join(render_review_card(a) for a in related_articles_list)}
+</div>"""
+
+    # 直接のレビューもキーワードの関連記事も無い商品には、そのチェーンの最新レビューを出す
+    # (どの商品ページからもネタフルへ行けるようにする。コンビニポチと同じ方針)
+    if not reviews and not related:
+        recent = latest_reviews(item["chain"], 4)
+        if recent:
+            related_html = f"""<h3>{esc(chain_name)}のネタフル最新レビュー</h3>
+<div class="review-grid">
+{chr(10).join(render_review_card(a) for a in recent)}
+</div>"""
+
+    nutrition_html = render_nutrition(item)
+    allergen_html = render_allergens(item)
+    history_html = render_price_history(item)
+    has_extras = bool(item.get("nutrition") or item.get("allergens") or history_html)
+    mid_ad = render_ad_slot() if has_extras else ""
+    bottom_ad = "" if has_extras else render_ad_slot()
+
+    price = fmt_price(item)
+    price_html = esc(price) if price else "価格は公式サイトでご確認ください"
+    price_note = ""
+    if price and item.get("price_note"):
+        price_note = f"<br><small>{esc(item['price_note'])}</small>"
+    status_label = "販売終了（公式サイトの一覧から消えています）" if is_ended(item) else "販売中"
+    kind = item.get("limited_kind")
+    kind_html = (f"<div class='tags'><span>{esc(kind)}</span><span>{esc(status_label.split('（')[0])}</span></div>"
+                 if kind else "")
+    relaunch = ""
+    for r in item.get("relaunches") or []:
+        relaunch += (f"<p class='note'>一度販売終了を確認した後（{esc(r.get('ended_observed_at') or '')}）、"
+                     f"{esc(r.get('reappeared_at') or '')}に公式サイトの一覧へ再び登場しました。</p>")
+    body = f"""<nav class="crumbs"><a href="/">トップ</a> &gt; <a href="/chains/{esc(item['chain'])}/">{esc(chain_name)}</a></nav>
+<div class="detail">
+<div class="chain-badge" style="background:var(--{esc(item['chain'])})">{esc(chain_name)}</div>
+<h1>{esc(item['name'])}</h1>
+{kind_html}
+<p class="price">{price_html}{price_note}</p>
+{render_price_variants(item)}
+<p><strong>販売期間：</strong>{esc(period_text(item, detailed=True))}</p>
+{('<p><strong>カテゴリ：</strong>' + esc(item['category']) + '</p>') if item.get('category') else ''}
+{relaunch}
+{render_notes(item)}
+{render_sources(item)}
+{nutrition_html}
+{allergen_html}
+{history_html}
+{mid_ad}
+{reviews_html}
+{related_html}
+{bottom_ad}
+</div>"""
+    canonical = CONFIG.get("site_url", "") + item_url(item)
+    return page_shell(seo_title(item), seo_description(item), body, canonical)
+
+
+# AIの学習データ集め専用のクローラーは断る。商品説明は各社公式サイトからの引用なので、
+# 引用元への配慮として学習用にまとめて持っていかれるのは避ける。
+# 検索やAI検索の表示に使うクローラー(Googlebot, Bingbot, OAI-SearchBot, ChatGPT-User,
+# PerplexityBot 等)は集客の入口なので止めない。
+AI_TRAINING_BOTS = [
+    "GPTBot", "CCBot", "Google-Extended", "Applebot-Extended", "anthropic-ai",
+    "ClaudeBot", "Bytespider", "meta-externalagent", "cohere-training-data-crawler",
+    "Diffbot", "Omgilibot",
+]
+
+
+def generate_robots() -> str:
+    lines = [f"User-agent: {bot}" for bot in AI_TRAINING_BOTS]
+    lines += ["Disallow: /", "", "User-agent: *", "Allow: /", "",
+              f"Sitemap: {CONFIG.get('site_url', '')}sitemap.xml", ""]
+    return "\n".join(lines)
+
+
+def generate_rss(items: list[dict]) -> str:
+    """新しく記録したメニューのRSS。"""
+    site_url = CONFIG.get("site_url", "")
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+    recent = sorted(items, key=lambda it: it.get("first_seen_at") or "", reverse=True)[
+        : CONFIG.get("rss_max_items", 100)]
+    entries = []
+    for it in recent:
+        chain_name = CHAIN_NAME.get(it["chain"], it["chain"])
+        title = f"【{chain_name}】{it['name']}"
+        link = f"{site_url}{item_url(it)}"
+        guid = f"{it['chain']}-{it['product_id']}"
+        try:
+            pub = datetime.datetime.fromisoformat(it.get("first_seen_at"))
+            pub_html = "\n<pubDate>" + pub.strftime("%a, %d %b %Y %H:%M:%S %z") + "</pubDate>"
+        except (TypeError, ValueError):
+            pub_html = ""
+        entries.append(
+            f"""<item>
+<title>{esc(title)}</title>
+<link>{esc(link)}</link>
+<guid isPermaLink="false">{esc(guid)}</guid>
+<category>{esc(chain_name)}</category>{pub_html}
+</item>"""
+        )
+    items_xml = "\n".join(entries)
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+<title>{esc(CONFIG["site_title"])}</title>
+<link>{esc(site_url)}</link>
+<description>{esc(CONFIG["site_description"])}</description>
+<lastBuildDate>{now}</lastBuildDate>
+{items_xml}
+</channel>
+</rss>
+"""
+
+
+def generate_sitemap(items: list[dict], months: list[str]) -> str:
+    site_url = CONFIG.get("site_url", "")
+    today = datetime.datetime.now(JST).date().isoformat()
+    urls = [site_url, site_url + "archive/", site_url + "chains/"]
+    for c in CHAINS:
+        urls.append(f"{site_url}chains/{c['slug']}/")
+    for m in months:
+        urls.append(f"{site_url}archive/{m}/")
+    for it in items:
+        urls.append(site_url + item_url(it))
+    body = "\n".join(
+        f"<url><loc>{esc(u)}</loc><lastmod>{today}</lastmod></url>" for u in urls
+    )
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{body}
+</urlset>
+"""
+
+
+def main() -> int:
+    items = load_all_products()
+    DOCS.mkdir(parents=True, exist_ok=True)
+
+    (DOCS / "index.html").write_text(render_top(items), encoding="utf-8")
+
+    # アーカイブ: 終了した期間限定ネタを開始月ごとに。0件の月のページは作らない
+    ended = ended_items(items)
+    months = sorted({m for it in ended if (m := start_month(it))})
+    (DOCS / "archive").mkdir(parents=True, exist_ok=True)
+    (DOCS / "archive" / "index.html").write_text(render_archive_index(items), encoding="utf-8")
+    for m in months:
+        month_items = [it for it in ended if start_month(it) == m]
+        mdir = DOCS / "archive" / m
+        mdir.mkdir(parents=True, exist_ok=True)
+        label = f"{m[:4]}年{int(m[5:7])}月に始まった期間限定ネタ"
+        page = render_grid_page(
+            label, f"{m[:4]}年{int(m[5:7])}月に販売が始まり、すでに終了した{CHAIN_LIST_TEXT}の期間限定ネタ一覧",
+            month_items, CONFIG.get("site_url", "") + f"archive/{m}/", show_filters=True,
+        )
+        (mdir / "index.html").write_text(page, encoding="utf-8")
+    stale_months = 0
+    for mdir in (DOCS / "archive").iterdir():
+        if mdir.is_dir() and mdir.name not in set(months):
+            shutil.rmtree(mdir)
+            stale_months += 1
+
+    (DOCS / "chains").mkdir(parents=True, exist_ok=True)
+    (DOCS / "chains" / "index.html").write_text(render_chains_top(), encoding="utf-8")
+    for c in CHAINS:
+        cdir = DOCS / "chains" / c["slug"]
+        cdir.mkdir(parents=True, exist_ok=True)
+        chain_items = sorted(
+            [it for it in items if it["chain"] == c["slug"]],
+            key=lambda it: effective_date(it) or "", reverse=True,
+        )
+        page = render_grid_page(
+            f"{c['name']}の期間限定ネタ",
+            f"{c['name']}の期間限定ネタの一覧。価格・カロリー・販売中と販売終了の記録", chain_items,
+            CONFIG.get("site_url", "") + f"chains/{c['slug']}/",
+            review_chain=c["slug"], status_filter=True, default_status="all",
+            empty_text="まだ記録がありません。",
+        )
+        (cdir / "index.html").write_text(page, encoding="utf-8")
+
+    (DOCS / "items").mkdir(parents=True, exist_ok=True)
+    for it in items:
+        (DOCS / item_url(it)).write_text(render_item_page(it), encoding="utf-8")
+
+    # 商品削除などで不要になった旧itemページ(オーファン)を掃除する
+    valid_item_files = {(DOCS / item_url(it)).name for it in items}
+    stale_items = 0
+    for f in (DOCS / "items").glob("*.html"):
+        if f.name not in valid_item_files:
+            f.unlink()
+            stale_items += 1
+
+    (DOCS / "search-index.json").write_text(
+        json.dumps(build_search_index(items), ensure_ascii=False), encoding="utf-8"
+    )
+    (DOCS / "rss.xml").write_text(generate_rss(items), encoding="utf-8")
+    (DOCS / "sitemap.xml").write_text(generate_sitemap(items, months), encoding="utf-8")
+    (DOCS / "robots.txt").write_text(generate_robots(), encoding="utf-8")
+    (DOCS / "CNAME").write_text(
+        CONFIG.get("site_url", "").replace("https://", "").strip("/") + "\n", encoding="utf-8"
+    )
+    (DOCS / ".nojekyll").write_text("", encoding="utf-8")
+
+    print(
+        f"generated: index.html, {len(months)} archive months, {len(CHAINS)} chain pages, "
+        f"{len(items)} item pages, rss.xml, sitemap.xml, search-index.json"
+        + (f" / removed {stale_items} stale item pages" if stale_items else "")
+        + (f" / removed {stale_months} stale archive dirs" if stale_months else "")
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

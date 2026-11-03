@@ -1,0 +1,299 @@
+{
+ "top_title": "回転寿司ポチ｜期間限定ネタのカロリー・価格アーカイブ",
+ "site_title": "回転寿司ポチ",
+ "site_tagline": "スシロー・くら寿司・はま寿司・かっぱ寿司の期間限定ネタを記録して残す",
+ "site_description": "スシロー・くら寿司・はま寿司・かっぱ寿司の期間限定ネタ・フェア商品を毎日記録し、販売が終わって公式サイトから消えても、価格・カロリー・アレルゲン・販売期間を後から引けるアーカイブにしています（価格は店舗により異なります）",
+ "site_url": "https://sushi.netaful.jp/",
+ "site_accent": "#1E3A5F",
+ "ga_measurement_id": "",
+ "adsense_client_id": "",
+ "adsense_ad_slot": "",
+ "chains": [
+  {
+   "slug": "sushiro",
+   "name": "スシロー",
+   "base_url": "https://www.akindo-sushiro.co.jp",
+   "color": "#E60012",
+   "color_dark": "#FF6B73"
+  },
+  {
+   "slug": "kurasushi",
+   "name": "くら寿司",
+   "base_url": "https://www.kurasushi.co.jp",
+   "color": "#F18D00",
+   "color_dark": "#FFB347"
+  },
+  {
+   "slug": "hamazushi",
+   "name": "はま寿司",
+   "base_url": "https://www.hamazushi.com",
+   "color": "#A6192E",
+   "color_dark": "#E5788A"
+  },
+  {
+   "slug": "kappasushi",
+   "name": "かっぱ寿司",
+   "base_url": "https://www.kappasushi.jp",
+   "color": "#00A040",
+   "color_dark": "#4CC27A"
+  }
+ ],
+ "chain_official": {
+  "sushiro": {
+   "source": "スシロー公式サイト",
+   "url": "https://www.akindo-sushiro.co.jp/",
+   "menu_url": "https://www.akindo-sushiro.co.jp/menu/menu_detail/?s_id=434"
+  },
+  "kurasushi": {
+   "source": "くら寿司公式サイト",
+   "url": "https://www.kurasushi.co.jp/",
+   "menu_url": "https://www.kurasushi.co.jp/menu/"
+  },
+  "hamazushi": {
+   "source": "はま寿司公式サイト",
+   "url": "https://www.hamazushi.com/",
+   "menu_url": "https://www.hamazushi.com/menu/"
+  },
+  "kappasushi": {
+   "source": "かっぱ寿司公式サイト",
+   "url": "https://www.kappasushi.jp/",
+   "menu_url": "https://www.kappasushi.jp/menu2"
+  }
+ },
+ "user_agent": "SushiPochi/1.0 (+https://sushi.netaful.jp/)",
+ "request_interval_seconds": {
+  "sushiro": 2,
+  "kurasushi": 2,
+  "hamazushi": 2,
+  "kappasushi": 2
+ },
+ "max_requests_per_run": {
+  "sushiro": 20,
+  "kurasushi": 20,
+  "hamazushi": 25,
+  "kappasushi": 20
+ },
+ "recheck_days": 7,
+ "recheck_max_per_run": 6,
+ "new_burst_min": 10,
+ "new_burst_ratio": 0.95,
+ "new_burst_min_by_chain": {
+  "sushiro": 8,
+  "kurasushi": 25,
+  "hamazushi": 15,
+  "kappasushi": 12
+ },
+ "sushiro": {
+  "s_id": 434,
+  "store_label": "巣本店（大阪府門真市）"
+ },
+ "pdf": {
+  "sushiro": {
+   "key": "sushiro",
+   "url": "https://www3.akindo-sushiro.co.jp/pdf/menu/allergy.pdf",
+   "label": "スシロー アレルギー情報（公式PDF）"
+  },
+  "kurasushi": {
+   "key": "kurasushi",
+   "url": "https://www.kurasushi.co.jp/common/pdf/kura_allergen.pdf",
+   "label": "くら寿司 アレルゲン・カロリー情報（公式PDF）"
+  },
+  "hamazushi": {
+   "key": "hamazushi",
+   "url": "https://images.zensho.co.jp/materials/hama-sushi/allergen/allergen.pdf",
+   "page": "https://www.hamazushi.com/menu/allergen/",
+   "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）"
+  },
+  "kappasushi": {
+   "key": "kappasushi",
+   "url": "https://www.kappasushi.jp/master_data/pdf/info_allergen.pdf",
+   "label": "かっぱ寿司 メニュー別アレルゲン情報（公式PDF）"
+  }
+ },
+ "netaful_tags": {
+  "sushiro": null,
+  "kurasushi": null,
+  "hamazushi": null,
+  "kappasushi": null
+ },
+ "netaful_search_terms": {
+  "sushiro": "スシロー",
+  "kurasushi": "くら寿司",
+  "hamazushi": "はま寿司",
+  "kappasushi": "かっぱ寿司"
+ },
+ "netaful_title_filters": {
+  "sushiro": [
+   "スシロー"
+  ],
+  "kurasushi": [
+   "くら寿司",
+   "くらずし"
+  ],
+  "hamazushi": [
+   "はま寿司"
+  ],
+  "kappasushi": [
+   "かっぱ寿司"
+  ]
+ },
+ "netaful_title_excludes": {},
+ "netaful_title_always": [
+  "sushiro",
+  "kurasushi",
+  "hamazushi",
+  "kappasushi"
+ ],
+ "related_sites": [
+  {
+   "name": "電書ポチ",
+   "desc": "Kindle本セール",
+   "url": "https://book.netaful.jp/"
+  },
+  {
+   "name": "家電ポチ",
+   "desc": "ガジェット・家電セール",
+   "url": "https://kaden.netaful.jp/"
+  },
+  {
+   "name": "林檎ポチ",
+   "desc": "Apple整備済製品",
+   "url": "https://apple.netaful.jp/"
+  },
+  {
+   "name": "漫画ポチ",
+   "desc": "Webマンガ横断検索",
+   "url": "https://manga.netaful.jp/"
+  },
+  {
+   "name": "コンビニポチ",
+   "desc": "コンビニ新商品アーカイブ",
+   "url": "https://conbini.netaful.jp/"
+  },
+  {
+   "name": "ファストフードポチ",
+   "desc": "ファストフード限定メニュー",
+   "url": "https://fastfood.netaful.jp/"
+  },
+  {
+   "name": "カフェポチ",
+   "desc": "カフェ季節限定メニュー",
+   "url": "https://cafe.netaful.jp/"
+  }
+ ],
+ "related_keywords": [
+  {
+   "label": "まぐろ・マグロ",
+   "words": [
+    "まぐろ",
+    "マグロ",
+    "鮪",
+    "中とろ",
+    "大とろ",
+    "赤身"
+   ]
+  },
+  {
+   "label": "サーモン",
+   "words": [
+    "サーモン",
+    "鮭"
+   ]
+  },
+  {
+   "label": "えび",
+   "words": [
+    "えび",
+    "エビ",
+    "海老"
+   ]
+  },
+  {
+   "label": "かに",
+   "words": [
+    "かに",
+    "カニ",
+    "蟹",
+    "ずわい"
+   ]
+  },
+  {
+   "label": "いか",
+   "words": [
+    "いか",
+    "イカ"
+   ]
+  },
+  {
+   "label": "牡蠣",
+   "words": [
+    "牡蠣",
+    "かき",
+    "カキ"
+   ]
+  },
+  {
+   "label": "ほたて",
+   "words": [
+    "ほたて",
+    "帆立",
+    "ホタテ"
+   ]
+  },
+  {
+   "label": "炙り",
+   "words": [
+    "炙り",
+    "あぶり"
+   ]
+  },
+  {
+   "label": "ラーメン・うどん",
+   "words": [
+    "ラーメン",
+    "らーめん",
+    "うどん",
+    "麺"
+   ]
+  },
+  {
+   "label": "天ぷら・フライ",
+   "words": [
+    "天ぷら",
+    "天身",
+    "フライ"
+   ]
+  },
+  {
+   "label": "茶碗蒸し",
+   "words": [
+    "茶碗蒸し"
+   ]
+  },
+  {
+   "label": "パフェ・デザート",
+   "words": [
+    "パフェ",
+    "プリン",
+    "ケーキ",
+    "アイス",
+    "デザート"
+   ]
+  }
+ ],
+ "policy_url": "https://netaful.jp/policy.html",
+ "about": [
+  "スシロー・くら寿司・はま寿司・かっぱ寿司の公式サイトを1日1回チェックして、期間限定ネタとフェア商品を記録しています。公式サイトは販売が終わった商品のページを消してしまうので、「いつからいつまで載っていたか」「いくらだったか」「何kcalだったか」を後から調べられるようにしています。",
+  "記録しているのは事実情報だけです。商品名・価格・カロリー・アレルゲン・販売期間を載せ、説明文と画像は載せていません。詳しくは各社の公式サイトをご覧ください。各商品のページから、公式ページへのリンクを置いています。",
+  "価格は店舗によって違います。スシローは代表の1店舗（巣本店・大阪府門真市）の表示、はま寿司とくら寿司は公式サイトの全国・標準の表示、かっぱ寿司は公式のメニューデータの表示を載せています。お近くの店舗の価格と違うことがあるので、実際の価格は店頭や各社の公式サイトで確認してください。",
+  "終了の判定は、公式の一覧から2日続けて消えたときです（かっぱ寿司は公式データの終了日も使います）。終了日は「一覧から消えたのを確認した日」で、公式の最終販売日とはずれることがあります。発売日は公式の販売期間の表記やお知らせから拾えたものだけで、拾えない商品は「記録開始日」から表示しています。はま寿司はカロリーを、公式のアレルゲン一覧表（PDF）にある値で載せています。",
+  "価格や販売状況は取得した時点のものです。店舗によって取り扱いも異なります。当サイトは各社とは関係のない非公式サイトで、運営はブログ「{{ネタフル}}」のコグレです。"
+ ],
+ "rss_max_items": 100,
+ "new_burst_abs_by_chain": {
+  "sushiro": 40,
+  "kurasushi": 100,
+  "hamazushi": 70,
+  "kappasushi": 60
+ }
+}
