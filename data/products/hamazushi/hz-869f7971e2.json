@@ -1,0 +1,92 @@
+{
+ "chain": "hamazushi",
+ "product_id": "hz-869f7971e2",
+ "name": "旨だしたまご 柚子おろし盛り",
+ "category": null,
+ "price": 176,
+ "price_max": null,
+ "price_note": "全国の価格（税込）です。一部店舗・北海道などでは価格が異なります",
+ "price_variants": null,
+ "launch_date": null,
+ "launch_date_source": null,
+ "news_title": null,
+ "news_url": null,
+ "news_date": null,
+ "listed_at": null,
+ "planned_end_text": null,
+ "nutrition": {
+  "kcal": 131.0
+ },
+ "nutrition_variants": null,
+ "nutrition_note": "公式サイトで公表されているのはカロリー(kcal)のみです",
+ "nutrition_source": {
+  "url": "https://images.zensho.co.jp/materials/hama-sushi/allergen/allergen.pdf",
+  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
+  "version": "2026-10-14",
+  "version_text": "2026年10月14日更新",
+  "fetched_at": "2026-11-03T19:24:21+09:00"
+ },
+ "allergens": {
+  "contains": [
+   "小麦",
+   "卵",
+   "大豆"
+  ],
+  "partial": [
+   {
+    "name": "乳",
+    "mark": "△"
+   },
+   {
+    "name": "牛肉",
+    "mark": "△"
+   },
+   {
+    "name": "豚肉",
+    "mark": "△"
+   },
+   {
+    "name": "りんご",
+    "mark": "△"
+   },
+   {
+    "name": "ごま",
+    "mark": "△"
+   }
+  ],
+  "partial_meaning": "原材料の製造工場で、そのアレルゲンを含む製品を同じラインで製造しています"
+ },
+ "allergen_source": {
+  "url": "https://images.zensho.co.jp/materials/hama-sushi/allergen/allergen.pdf",
+  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
+  "version": "2026-10-14",
+  "version_text": "2026年10月14日更新",
+  "fetched_at": "2026-11-03T19:24:21+09:00"
+ },
+ "allergen_note": null,
+ "limited_kind": "期間限定",
+ "stores_note": "お持ち帰り不可",
+ "official_url": "https://www.hamazushi.com/menu/",
+ "first_seen_at": "2026-11-03T19:24:12+09:00",
+ "last_seen_at": "2026-11-03",
+ "status": "on_sale",
+ "ended_observed_at": null,
+ "missed_runs": 0,
+ "price_history": [
+  {
+   "date": "2026-11-03",
+   "price": 176
+  }
+ ],
+ "launch_search_runs": 2,
+ "period": {
+  "start": null,
+  "end": null,
+  "sellout": false,
+  "quantity": null
+ },
+ "source_list": [
+  "hamazushi.com/menu/#anchor-limited"
+ ],
+ "nutrition_label": "1皿あたり"
+}

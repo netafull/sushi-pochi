@@ -1,0 +1,419 @@
+{
+ "articles": {
+  "hamazushi": [
+   {
+    "date": "2025-05-02T17:30:00",
+    "id": 175753,
+    "link": "https://netaful.jp/fast-food/0175753.html",
+    "product_name": "えび 塩ごま油",
+    "thumb": {
+     "height": 364,
+     "url": "https://netaful.jp/wp-content/uploads/2025/05/hama-ebi-shiogomaabura-002-485x364.jpg",
+     "width": 485
+    },
+    "title": "【はま寿司】「えび 塩ごま油」ネットで人気のレシピぽいメニューがあったので食べてみた【期間限定】"
+   },
+   {
+    "date": "2025-05-02T15:00:00",
+    "id": 175747,
+    "link": "https://netaful.jp/fast-food/0175747.html",
+    "product_name": "特製旨辛とんこつ醤油ラーメン",
+    "thumb": {
+     "height": 364,
+     "url": "https://netaful.jp/wp-content/uploads/2025/05/hama-umakara-tonkotsu-004-485x364.jpg",
+     "width": 485
+    },
+    "title": "【はま寿司】「特製旨辛とんこつ醤油ラーメン」食べてみたら思いもかけぬ辛さに驚いた【期間限定】"
+   },
+   {
+    "date": "2025-03-04T12:30:00",
+    "id": 172607,
+    "link": "https://netaful.jp/ranking/0172607.html",
+    "product_name": "満足度が高い寿司チェーンランキング",
+    "thumb": {
+     "height": 273,
+     "url": "https://netaful.jp/wp-content/uploads/2025/03/bg_kaitenzushi-485x273.jpg",
+     "width": 485
+    },
+    "title": "「満足度が高い寿司チェーンランキング」2位ははま寿司、1位は？"
+   },
+   {
+    "date": "2019-07-06T08:00:00",
+    "id": 60977,
+    "link": "https://netaful.jp/ramen/060977.html",
+    "product_name": "冷やし担々麺",
+    "thumb": {
+     "height": 226,
+     "url": "https://netaful.jp/wp-content/uploads/2019/07/slproImg_2019070521060712-1-300x226.jpg",
+     "width": 300
+    },
+    "title": "はま寿司の夏メニュー「冷やし担々麺」スープにドボンする〆シャリは自然の摂理"
+   },
+   {
+    "date": "2019-04-18T14:00:00",
+    "id": 60401,
+    "link": "https://netaful.jp/smartphone-pay/060401.html",
+    "product_name": "すき家",
+    "thumb": {
+     "height": 189,
+     "url": "https://netaful.jp/wp-content/uploads/2019/04/slproImg_201904181422590-1.jpg",
+     "width": 300
+    },
+    "title": "「すき家」「はま寿司」「ココス」などゼンショーグループが「楽天スーパーポイント」「Pontaポイント」「dポイント」を導入"
+   }
+  ],
+  "kappasushi": [
+   {
+    "date": "2020-08-30T13:00:00",
+    "id": 63624,
+    "link": "https://netaful.jp/neta-eat/063624.html",
+    "product_name": "メガ盛り蟹いくら丼",
+    "thumb": {
+     "height": 300,
+     "url": "https://netaful.jp/wp-content/uploads/2020/08/slproImg_202008301440520-1-393x300.jpg",
+     "width": 393
+    },
+    "title": "【かっぱ寿司】北海道フェアで約6人前で総重量1.5kg以上の「メガ盛り蟹いくら丼」発売"
+   },
+   {
+    "date": "2020-07-13T09:00:00",
+    "id": 63278,
+    "link": "https://netaful.jp/neta-eat/063278.html",
+    "product_name": "かっぱ寿司",
+    "thumb": {
+     "height": 200,
+     "url": "https://netaful.jp/wp-content/uploads/2020/07/slproImg_202007131017240-1-300x200.jpg",
+     "width": 300
+    },
+    "title": "「かっぱ寿司」福島県・静岡県の一部店舗に続き愛知県内3店舗と静岡県1店舗で朝食メニューを提供開始"
+   },
+   {
+    "date": "2020-05-29T14:00:00",
+    "id": 62977,
+    "link": "https://netaful.jp/neta-eat/062977.html",
+    "product_name": "超鮪づくしセット",
+    "thumb": {
+     "height": 200,
+     "url": "https://netaful.jp/wp-content/uploads/2020/05/slproImg_202005291623500-1-300x200.jpg",
+     "width": 300
+    },
+    "title": "【かっぱ寿司】大トロ・中トロ・漬け風まぐろなど6種類のマグロネタが楽しめる「超鮪づくしセット」6月3日より発売"
+   },
+   {
+    "date": "2020-05-12T12:00:00",
+    "id": 62847,
+    "link": "https://netaful.jp/neta-eat/062847.html",
+    "product_name": "メガ海鮮イクラちらし寿司",
+    "thumb": {
+     "height": 200,
+     "url": "https://netaful.jp/wp-content/uploads/2020/05/slproImg_202005121130140-1-300x200.jpg",
+     "width": 300
+    },
+    "title": "【かっぱ寿司】イクラ・まぐろ・サーモン・海老など総重量3.5kg！テイクアウト限定「メガ海鮮イクラちらし寿司」数量限定で5/13より発売開始"
+   },
+   {
+    "date": "2019-01-26T09:00:00",
+    "id": 59790,
+    "link": "https://netaful.jp/neta-eat/059790.html",
+    "product_name": "YouTuber専用取材問い合わせフォーム",
+    "thumb": {
+     "height": 191,
+     "url": "https://netaful.jp/wp-content/uploads/2019/01/slproImg_201901261115490-1-300x191.jpg",
+     "width": 300
+    },
+    "title": "かっぱ寿司「YouTuber専用取材問い合わせフォーム」を開設"
+   },
+   {
+    "date": "2018-10-01T13:30:00",
+    "id": 58930,
+    "link": "https://netaful.jp/family-restaurant/058930.html",
+    "product_name": "食べホーMAX！！",
+    "thumb": {
+     "height": 174,
+     "url": "https://netaful.jp/wp-content/uploads/2018/10/slproImg_201810011308290-1-300x174.jpg",
+     "width": 300
+    },
+    "title": "【かっぱ寿司】ランチとディナーが食べ放題「食べホーMAX！！」対象店舗を拡大 〜東京・埼玉も"
+   },
+   {
+    "date": "2017-06-13T10:00:00",
+    "id": 55476,
+    "link": "https://netaful.jp/neta-eat/055476.html",
+    "product_name": "かっぱ寿司",
+    "thumb": {
+     "height": 116,
+     "url": "https://netaful.jp/wp-content/uploads/2017/06/2017-06-13_1126-1-300x116.jpg",
+     "width": 300
+    },
+    "title": "「かっぱ寿司」平日の午後に期間限定で70分食べ放題を実施（〜7/14）"
+   },
+   {
+    "date": "2016-12-19T10:30:00",
+    "id": 54390,
+    "link": "https://netaful.jp/neta-eat/054390.html",
+    "product_name": "至極の大桶SUSHI CAKE",
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2016/12/2016-12-19_1101-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "いくら50貫分・大とろ25貫分の「至極の大桶SUSHI CAKE」をかっぱ寿司が発売"
+   }
+  ],
+  "kurasushi": [
+   {
+    "date": "2022-09-08T11:00:00",
+    "id": 119485,
+    "link": "https://netaful.jp/neta-eat/0119485.html",
+    "product_name": "くら寿司",
+    "thumb": {
+     "height": 136,
+     "url": "https://netaful.jp/wp-content/uploads/2022/09/kura-115-300x136.jpg",
+     "width": 300
+    },
+    "title": "「くら寿司」1皿110円（税込）から115円（税込）に値上げと発表 〜220円は165円に値下げ"
+   },
+   {
+    "date": "2019-11-28T09:30:00",
+    "id": 61962,
+    "link": "https://netaful.jp/smartphone-pay/061962.html",
+    "product_name": "年末感謝クーポン祭",
+    "thumb": null,
+    "title": "【LINE Pay】セブン、ファミマ、ローソン、吉野家、松屋、くら寿司、ドラッグストアで使える「年末感謝クーポン祭」（12/1〜12/31）"
+   },
+   {
+    "date": "2019-06-13T07:00:00",
+    "id": 60788,
+    "link": "https://netaful.jp/ramen/060788.html",
+    "product_name": "冷やし担々麺",
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2019/06/slproImg_201906130828010-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "くら寿司の夏メニュー「冷やし担々麺」うまい？まずい？食べてみた！"
+   },
+   {
+    "date": "2017-12-20T16:00:00",
+    "id": 56666,
+    "link": "https://netaful.jp/ramen/056666.html",
+    "product_name": "胡麻香る担々麺",
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2017/12/20171217174507-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "【けやき坂46】ラーメン大好き齊藤さん（アイドル）の教えに従い、くら寿司で「胡麻香る担々麺」を食べてきた。"
+   },
+   {
+    "date": "2017-04-18T09:00:00",
+    "id": 55121,
+    "link": "https://netaful.jp/neta-eat/055121.html",
+    "product_name": "くら寿司",
+    "thumb": {
+     "height": 138,
+     "url": "https://netaful.jp/wp-content/uploads/2017/04/2017-04-18_0816-1-300x138.jpg",
+     "width": 300
+    },
+    "title": "「くら寿司」楽天ポイントとクレジットカードの利用が可能に"
+   },
+   {
+    "date": "2016-08-12T11:00:00",
+    "id": 53635,
+    "link": "https://netaful.jp/family-restaurant/053635.html",
+    "product_name": "シャリカレーパン",
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2016/08/shari-curry-6966-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "【くら寿司】「シャリカレーパン」手作り揚げたてサクサクで美味しいけど限定販売だから注意"
+   },
+   {
+    "date": "2015-09-21T14:30:47",
+    "id": 51427,
+    "link": "https://netaful.jp/family-restaurant/051427.html",
+    "product_name": "シャリカレー",
+    "thumb": {
+     "height": 900,
+     "url": "https://netaful.jp/wp-content/uploads/2015/09/slproImg_201509211414560-1.jpg",
+     "width": 1200
+    },
+    "title": "くら寿司で「シャリカレー」を食べてみた → 辛いカレーに甘い酢飯がマッチするのね！不思議な味わい"
+   },
+   {
+    "date": "2015-07-31T10:30:00",
+    "id": 51030,
+    "link": "https://netaful.jp/family-restaurant/051030.html",
+    "product_name": "すしやのシャリカレー",
+    "thumb": {
+     "height": 226,
+     "url": "https://netaful.jp/wp-content/uploads/2015/07/2015-07-31_1028-1-300x226.png",
+     "width": 300
+    },
+    "title": "寿司屋で酢飯のカレー！？くら寿司が「すしやのシャリカレー」を350円で販売開始"
+   },
+   {
+    "date": "2015-03-25T14:00:00",
+    "id": 49719,
+    "link": "https://netaful.jp/iphone-app/049719.html",
+    "product_name": "EPARK",
+    "thumb": {
+     "height": 300,
+     "url": "https://netaful.jp/wp-content/uploads/2015/03/epark-9949-1-337x300.png",
+     "width": 337
+    },
+    "title": "「EPARK」くら寿司・すたみな太郎をはじめとした店舗予約ができるiPhoneアプリ"
+   },
+   {
+    "date": "2014-07-24T11:30:00",
+    "id": 47647,
+    "link": "https://netaful.jp/diary/047647.html",
+    "product_name": null,
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2014/07/kurazushi-yokai-watch-0810-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "妖怪ウォッチとのコラボでくら寿司が大変なことになってた"
+   },
+   {
+    "date": "2014-05-29T14:00:00",
+    "id": 47037,
+    "link": "https://netaful.jp/eat/047037.html",
+    "product_name": "キャラメルバナナ寿司",
+    "thumb": {
+     "height": 210,
+     "url": "https://netaful.jp/wp-content/uploads/2014/05/2014-05-29_1345-1-300x210.jpg",
+     "width": 300
+    },
+    "title": "【くら寿司】森永ミルクキャラメルとコラボした「キャラメルバナナ寿司」「キャラメル・コーンマヨ」"
+   },
+   {
+    "date": "2014-02-15T15:30:00",
+    "id": 45907,
+    "link": "https://netaful.jp/family-restaurant/045907.html",
+    "product_name": "くら寿司",
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2014/02/slooProImg_20140215151349-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "ついに「くら寿司」でもプレミアムコーヒー！アイスラテを飲んでみた！"
+   },
+   {
+    "date": "2013-02-12T11:45:00",
+    "id": 42799,
+    "link": "https://netaful.jp/eat/042799.html",
+    "product_name": "くら寿司",
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2013/02/kura_zushi_6554-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "「くら寿司」注文した寿司が高速移動するシステムが導入されていて驚愕！そしてチョコバナナロール寿司"
+   }
+  ],
+  "sushiro": [
+   {
+    "date": "2025-01-05T08:30:00",
+    "id": 165781,
+    "link": "https://netaful.jp/magazine/0165781.html",
+    "product_name": "おうちでスシロー すし皿BOOK",
+    "thumb": {
+     "height": 200,
+     "url": "https://netaful.jp/wp-content/uploads/2025/01/41w8ZK09hZL._SL500_._SL500-300x200.jpg",
+     "width": 300
+    },
+    "title": "スシローの皿が付録「おうちでスシロー すし皿BOOK」"
+   },
+   {
+    "date": "2022-09-09T10:00:00",
+    "id": 119525,
+    "link": "https://netaful.jp/ranking/0119525.html",
+    "product_name": "にぎり",
+    "thumb": {
+     "height": 220,
+     "url": "https://netaful.jp/wp-content/uploads/2022/09/salmon-susiro-300x220.jpg",
+     "width": 300
+    },
+    "title": "スシローで一番好きな「にぎり」ランキングのトップ10にサーモン系が5品もランクイン"
+   },
+   {
+    "date": "2021-11-20T09:00:00",
+    "id": 106426,
+    "link": "https://netaful.jp/neta-eat/0106426.html",
+    "product_name": "スシロー To Go 浦和さくら草通り店",
+    "thumb": {
+     "height": 202,
+     "url": "https://netaful.jp/wp-content/uploads/2021/11/sushiro-takeout-20000-300x202.jpg",
+     "width": 300
+    },
+    "title": "スシローのテイクアウト専門店が埼玉初進出「スシロー To Go 浦和さくら草通り店」11月25日オープン"
+   },
+   {
+    "date": "2021-03-29T15:00:00",
+    "id": 97886,
+    "link": "https://netaful.jp/neta-eat/097886.html",
+    "product_name": "濃厚うに包み",
+    "thumb": {
+     "height": 180,
+     "url": "https://netaful.jp/wp-content/uploads/2021/03/suriro-uni-001-202103-300x180.jpg",
+     "width": 300
+    },
+    "title": "【スシロー】「濃厚うに包み」「濃厚うにまぜそば」期間限定で販売中（3/29〜）"
+   },
+   {
+    "date": "2020-07-22T10:00:00",
+    "id": 63335,
+    "link": "https://netaful.jp/comic/063335.html",
+    "product_name": "ミスター味っ子",
+    "thumb": {
+     "height": 300,
+     "url": "https://netaful.jp/wp-content/uploads/2020/07/slproImg_202007221648210-1-485x300.jpg",
+     "width": 485
+    },
+    "title": "スシローが「ミスター味っ子」「将太の寿司」でお馴染みのグルメ漫画家・寺沢大介のオリジナル漫画「SUSHIROAD（寿司道）」を無料公開"
+   },
+   {
+    "date": "2020-04-28T14:00:00",
+    "id": 62767,
+    "link": "https://netaful.jp/neta-eat/062767.html",
+    "product_name": "スシロー特上手巻セット",
+    "thumb": {
+     "height": 205,
+     "url": "https://netaful.jp/wp-content/uploads/2020/04/slproImg_202004281651420-1-300x205.jpg",
+     "width": 300
+    },
+    "title": "【スシロー】「スシロー特上手巻セット」寿司ネタにしゃりとのりが付いて2〜3人前2,980円"
+   },
+   {
+    "date": "2019-08-22T07:00:00",
+    "id": 61279,
+    "link": "https://netaful.jp/family-restaurant/061279.html",
+    "product_name": "うににく祭り",
+    "thumb": {
+     "height": 225,
+     "url": "https://netaful.jp/wp-content/uploads/2019/08/slproImg_201908212031000-1-300x225.jpg",
+     "width": 300
+    },
+    "title": "【スシロー】うに食べまくり「うににく祭り」でワッショイ！"
+   },
+   {
+    "date": "2013-02-08T10:00:00",
+    "id": 42771,
+    "link": "https://netaful.jp/eat/042771.html",
+    "product_name": "スシロー",
+    "thumb": {
+     "height": 282,
+     "url": "https://netaful.jp/wp-content/uploads/2013/02/2013-02-07_1614-1-300x282.jpg",
+     "width": 300
+    },
+    "title": "なぜ「スシロー」は他の回転寿司より美味いのか？"
+   }
+  ]
+ },
+ "errors": [],
+ "fetched_at": "2026-11-03T19:29:15+09:00",
+ "matches": {}
+}

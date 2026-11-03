@@ -1,0 +1,26 @@
+{
+ "hamazushi": {
+  "fetched_at": "2026-11-03T19:24:21+09:00",
+  "last_get": "2026-11-03",
+  "signature": "\"ab400f616bbe0ac68cad0c8823e9be3e\"|Wed, 14 Oct 2026 00:46:47 GMT|1827472",
+  "version": "2026-10-14"
+ },
+ "kappasushi": {
+  "fetched_at": "2026-11-03T19:24:32+09:00",
+  "last_get": "2026-11-03",
+  "signature": "\"2d90da-65e7745c69000\"|Fri, 23 Oct 2026 00:43:45 GMT|2986202",
+  "version": "2026-10-15"
+ },
+ "kurasushi": {
+  "fetched_at": "2026-11-03T19:24:06+09:00",
+  "last_get": "2026-11-03",
+  "signature": "|Tue, 27 Oct 2026 00:28:40 GMT|2275739",
+  "version": "2026-10-30"
+ },
+ "sushiro": {
+  "fetched_at": "2026-11-03T19:23:51+09:00",
+  "last_get": "2026-11-03",
+  "signature": "\"dba3acd28f91d416410ac366b500d037\"|Wed, 28 Oct 2026 00:13:04 GMT|1466370",
+  "version": "2026-10-22"
+ }
+}

@@ -1,0 +1,57 @@
+{
+ "chain": "kappasushi",
+ "product_id": "06109",
+ "name": "ごち寿司 かっぱの”江戸前”寿司５貫プレート",
+ "category": null,
+ "price": 649,
+ "price_max": null,
+ "price_note": "店内の税込価格です（この商品は店内飲食限定）",
+ "price_variants": null,
+ "launch_date": "2026-10-22",
+ "launch_date_source": "official_json",
+ "news_title": null,
+ "news_url": null,
+ "news_date": null,
+ "listed_at": null,
+ "planned_end_text": "2026-11-11まで",
+ "nutrition": {
+  "kcal": 207.0
+ },
+ "nutrition_variants": null,
+ "nutrition_note": "公式サイトで公表されているのはカロリー(kcal)のみです",
+ "nutrition_source": {
+  "label": "かっぱ寿司 メニュー",
+  "url": "https://www.kappasushi.jp/menu2"
+ },
+ "allergens": null,
+ "allergen_source": {
+  "label": "かっぱ寿司 メニュー別アレルゲン情報（公式PDF）",
+  "url": "https://www.kappasushi.jp/master_data/pdf/info_allergen.pdf"
+ },
+ "allergen_note": null,
+ "limited_kind": "期間限定ネタ",
+ "stores_note": "店内飲食限定",
+ "official_url": "https://www.kappasushi.jp/menu2",
+ "first_seen_at": "2026-11-03T19:24:28+09:00",
+ "last_seen_at": "2026-11-03",
+ "status": "on_sale",
+ "ended_observed_at": null,
+ "missed_runs": 0,
+ "price_history": [
+  {
+   "date": "2026-11-03",
+   "price": 649
+  }
+ ],
+ "launch_search_runs": 0,
+ "period": {
+  "start": "2026-10-22",
+  "end": "2026-11-11",
+  "sellout": false,
+  "quantity": null
+ },
+ "source_list": [
+  "kappasushi.jp/master_data/json/menulist.json"
+ ],
+ "pdf_tried": "2026-10-15"
+}

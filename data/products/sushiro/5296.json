@@ -1,0 +1,69 @@
+{
+ "chain": "sushiro",
+ "product_id": "5296",
+ "name": "あったかフォンダンショコラ",
+ "category": null,
+ "price": 330,
+ "price_max": null,
+ "price_note": "巣本店（大阪府門真市）の価格です。店舗により異なります",
+ "price_variants": null,
+ "launch_date": "2026-10-28",
+ "launch_date_source": "menu_period",
+ "news_title": null,
+ "news_url": null,
+ "news_date": null,
+ "listed_at": null,
+ "planned_end_text": "2026-11-08まで（完売次第終了・販売予定総数27万食）",
+ "nutrition": {
+  "kcal": 281.0
+ },
+ "nutrition_variants": null,
+ "nutrition_note": "公式サイトで公表されているのはカロリー(kcal)のみです",
+ "nutrition_source": {
+  "label": "スシロー 店舗別メニュー",
+  "url": "https://www.akindo-sushiro.co.jp/menu/menu_detail/?s_id=434"
+ },
+ "allergens": {
+  "contains": [
+   "卵",
+   "乳成分",
+   "小麦",
+   "大豆"
+  ],
+  "partial": [],
+  "partial_meaning": "工場で製造ラインを共有しています"
+ },
+ "allergen_source": {
+  "url": "https://www3.akindo-sushiro.co.jp/pdf/menu/allergy.pdf",
+  "label": "スシロー アレルギー情報（公式PDF）",
+  "version": "2026-10-22",
+  "version_text": "2026年10月22日更新",
+  "fetched_at": "2026-11-03T19:23:51+09:00"
+ },
+ "allergen_note": null,
+ "limited_kind": "期間限定",
+ "stores_note": "お持ち帰り対象外",
+ "official_url": "https://www.akindo-sushiro.co.jp/menu/menu_detail/?s_id=434",
+ "first_seen_at": "2026-11-03T19:23:47+09:00",
+ "last_seen_at": "2026-11-03",
+ "status": "on_sale",
+ "ended_observed_at": null,
+ "missed_runs": 0,
+ "price_history": [
+  {
+   "date": "2026-11-03",
+   "price": 330
+  }
+ ],
+ "launch_search_runs": 0,
+ "period": {
+  "start": "2026-10-28",
+  "end": "2026-11-08",
+  "sellout": true,
+  "quantity": "販売予定総数27万食"
+ },
+ "nutrition_label": null,
+ "source_list": [
+  "akindo-sushiro.co.jp/menu/menu_detail/?s_id=434"
+ ]
+}
