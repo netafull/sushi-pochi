@@ -1,7 +1,8 @@
 {
  "hamazushi": {
+  "failed_signature": "\"3e83456cc8bd382a63b0f391f61a8522\"|Tue, 03 Nov 2026 20:00:05 GMT|1832873",
   "fetched_at": "2026-11-03T19:24:21+09:00",
-  "last_get": "2026-11-03",
+  "last_get": "2026-11-04",
   "signature": "\"ab400f616bbe0ac68cad0c8823e9be3e\"|Wed, 14 Oct 2026 00:46:47 GMT|1827472",
   "version": "2026-10-14"
  },

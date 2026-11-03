@@ -1,5 +1,11 @@
 {
- "hamazushi": {},
+ "hamazushi": {
+  "pdf:allergen": {
+   "checked_at": "2026-11-04T08:30:25+09:00",
+   "reason": "validation: 記号がそろっている行の割合が低すぎます(0%)",
+   "url": "https://images.zensho.co.jp/materials/hama-sushi/allergen/allergen.pdf"
+  }
+ },
  "kappasushi": {},
  "kurasushi": {},
  "sushiro": {}
