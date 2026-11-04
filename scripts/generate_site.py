@@ -969,30 +969,29 @@ def link_html(label: str, url: str | None) -> str:
     return f'<a href="{esc(url)}" target="_blank" rel="noopener">{esc(label)}</a>'
 
 
-def source_note(src: dict | None, what: str) -> str:
-    if not src or not src.get("url"):
+def nutrition_note_html(item: dict) -> str:
+    """kcalしか公表されていないという断り書きは表を見れば分かるので出さない。"""
+    note = item.get("nutrition_note") or ""
+    if not note or ("kcal" in note and "のみ" in note):
         return ""
-    return f"<p class='note'>出典：{link_html(src.get('label') or '公式サイト', src['url'])}（{esc(what)}は公式の表示を転記）。</p>"
+    return f"<p class='note'>{esc(note.rstrip('。'))}。</p>"
 
 
 def render_nutrition(item: dict) -> str:
     nut = item.get("nutrition")
     if not nut:
         src = item.get("nutrition_source") or {}
-        link = (f"<p class='note'>公式サイトでご確認ください：{link_html(src.get('label') or '公式サイト', src.get('url'))}</p>"
-                if src.get("url") else "")
-        return ("<h3>カロリー</h3><p class='note'>この商品のカロリーは、当サイトでは取り込めていません"
-                f"（公式サイトに掲載がない、または名前が一致しませんでした）。</p>{link}")
+        link = f"公式サイトでご確認ください：{link_html(src.get('label') or '公式サイト', src.get('url'))}" if src.get("url") else ""
+        return f"<h3>カロリー</h3><p class='note'>カロリーは未取得です。{link}</p>"
     variants = item.get("nutrition_variants") or []
-    note = f"<p class='note'>{esc(item['nutrition_note'].rstrip('。'))}。</p>" if item.get("nutrition_note") else ""
+    note = nutrition_note_html(item)
     if len(variants) > 1:
         only_kcal = all({k for k, v in (x["nutrition"] or {}).items() if v is not None and k != "other"} <= {"kcal"}
                         for x in variants)
         if only_kcal:
             rows = "".join(f"<tr><th>{esc(x.get('label') or '標準')}</th><td>{x['nutrition']['kcal']:g}kcal</td></tr>"
                            for x in variants)
-            return (f"<h3>カロリー</h3><table>{rows}</table>{note}"
-                    f"{source_note(item.get('nutrition_source'), 'カロリー')}")
+            return (f"<h3>カロリー</h3><table>{rows}</table>{note}")
         parsed = [(v.get("label") or "標準", _nutrition_rows(v["nutrition"])) for v in variants]
         row_labels: list[str] = []
         for _, rows in parsed:
@@ -1005,7 +1004,7 @@ def render_nutrition(item: dict) -> str:
             cells = "".join(f"<td>{esc(dict(rows).get(rl, '－'))}</td>" for _, rows in parsed)
             body_rows += f"<tr><th>{esc(rl)}</th>{cells}</tr>"
         return (f"<h3>カロリー</h3><div class='tablewrap'><table class='multi'>{head}{body_rows}</table></div>"
-                f"{note}{source_note(item.get('nutrition_source'), 'カロリー')}")
+                f"{note}")
     trs = "".join(f"<tr><th>{esc(label)}</th><td>{esc(val)}</td></tr>" for label, val in _nutrition_rows(nut))
     other = nut.get("other") or {}
     inline_rows, details = "", ""
@@ -1018,8 +1017,7 @@ def render_nutrition(item: dict) -> str:
                        f"<table>{rows}</table></details>")
     label = item.get("nutrition_label") or (variants[0].get("label") if variants else None) or ""
     head = f"<h3>カロリー{('（' + esc(label) + '）') if label else ''}</h3>"
-    return (f"{head}<table>{trs}{inline_rows}</table>{details}{note}"
-            f"{source_note(item.get('nutrition_source'), 'カロリー')}")
+    return (f"{head}<table>{trs}{inline_rows}</table>{details}{note}")
 
 
 def render_allergens(item: dict) -> str:
@@ -1027,8 +1025,7 @@ def render_allergens(item: dict) -> str:
     if a is None:
         src = item.get("allergen_source") or {}
         if src.get("url"):
-            return ("<p class='note'>アレルギー情報は当サイトでは取り込めていません"
-                    "（公式の表に同じ名前の行が見つからない、または公式の表を読み取れていません）。公式サイトでご確認ください："
+            return ("<p class='note'>アレルギー情報は未取得です。公式サイトでご確認ください："
                     f"{link_html(src.get('label') or '公式サイト', src['url'])}</p>")
         return ""
     contains = a.get("contains") or []
@@ -1043,12 +1040,14 @@ def render_allergens(item: dict) -> str:
                   + (f"（公式の凡例：{esc(meaning)}）" if meaning else "") + "</p>")
     if item.get("allergen_note"):
         html_ += f"<p class='note'>{esc(item['allergen_note'].rstrip('。'))}。</p>"
-    html_ += "<p class='note'>最終的な判断は、各社公式サイトの最新のアレルギー情報でご確認ください。</p>"
     src = item.get("allergen_source") or {}
     if src.get("url"):
         vt = src.get("version_text")
-        html_ += (f"<p class='note'>出典：{link_html(src.get('label') or '公式サイト', src['url'])}"
-                  + (f"（{esc(vt)}）" if vt else "") + "のアレルゲンを転記。</p>")
+        html_ += ("<p class='note'>最新のアレルギー情報は公式サイトでご確認ください："
+                  + link_html(src.get("label") or "公式サイト", src["url"])
+                  + (f"（{esc(vt)}）" if vt else "") + "</p>")
+    else:
+        html_ += "<p class='note'>最新のアレルギー情報は公式サイトでご確認ください。</p>"
     return html_
 
 
@@ -1145,6 +1144,9 @@ def render_sources(item: dict) -> str:
         links.append(link_html("公式のメニューページ", item["official_url"]))
     if item.get("news_url"):
         links.append(link_html("公式のお知らせ・トピック", item["news_url"]))
+    nut_src = item.get("nutrition_source") or {}
+    if nut_src.get("url") and nut_src["url"] != item.get("official_url"):
+        links.append(link_html(nut_src.get("label") or "公式の栄養情報", nut_src["url"]))
     if off.get("url"):
         links.append(link_html(f"{chain_name}公式サイト", off["url"]))
     fetched = (item.get("first_seen_at") or "")[:10]

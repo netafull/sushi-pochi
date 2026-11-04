@@ -136,9 +136,9 @@ class TestItemPage(unittest.TestCase):
 
     def test_missing_nutrition_points_to_official(self):
         h = g.render_item_page(item(nutrition=None, allergens=None))
-        self.assertIn("カロリーは、当サイトでは取り込めていません", h)
+        self.assertIn("カロリーは未取得です", h)
         self.assertIn("https://nutrition.example/", h)
-        self.assertIn("アレルギー情報は当サイトでは取り込めていません", h)
+        self.assertIn("アレルギー情報は未取得です", h)
         self.assertIn("https://allergen.example/", h)
 
     def test_allergens_contains_none_and_partial(self):
@@ -149,7 +149,7 @@ class TestItemPage(unittest.TestCase):
         self.assertIn("条件つきの表示（△）：えび△（公式の凡例：同じラインで製造しています）", h)
         self.assertIn("出典：", h)
         self.assertIn("2026年10月22日更新", h)
-        self.assertIn("最終的な判断は、各社公式サイトの最新のアレルギー情報でご確認ください", h)
+        self.assertIn("最新のアレルギー情報は公式サイトでご確認ください", h)
 
     def test_price_history_only_when_changed(self):
         self.assertNotIn("価格の履歴", g.render_item_page(item()))
@@ -211,6 +211,15 @@ class TestItemPage(unittest.TestCase):
         self.assertTrue(nutrition)
         self.assertLess(h.index(nutrition), h.index("補足と出典"))
         self.assertLess(h.index("補足と出典"), h.index("<p class='source'>"))
+
+    def test_nutrition_notes_are_short(self):
+        h = g.render_item_page(item(nutrition_note="公式サイトで公表されているのはカロリー(kcal)のみです"))
+        self.assertNotIn("公表されているのは", h)
+        self.assertNotIn("転記", h)
+        self.assertIn('href="https://nutrition.example', h)  # 栄養の出典は補足と出典に残す
+        self.assertIn("最新のアレルギー情報は公式サイトでご確認ください", h)  # アレルゲンの案内は残す
+        h = g.render_item_page(item(nutrition_note="ミルクは標準の値です"))
+        self.assertIn("ミルクは標準の値です。", h)
 
     def test_ga4_tag_present_when_set(self):
         from unittest import mock
