@@ -257,11 +257,11 @@ class TestAdSlots(unittest.TestCase):
             "item": g.render_item_page(self.items[0]),
         }
 
-    def test_real_config_starts_without_ads(self):
-        # 最初は広告を出さない。運営者が公開後に値を入れる(コードは残してある)
+    def test_real_config_has_both_ad_values(self):
+        # 片方だけだと広告が出ない。値は他のポチと共通
         real = json.loads((Path(g.ROOT) / "config.json").read_text(encoding="utf-8"))
-        self.assertEqual(real["adsense_client_id"], "")
-        self.assertEqual(real["adsense_ad_slot"], "")
+        self.assertTrue(real["adsense_client_id"].startswith("ca-pub-"))
+        self.assertTrue(real["adsense_ad_slot"])
 
     def test_head_script_and_vignette_opt_out(self):
         for name, h in self.pages().items():
