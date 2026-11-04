@@ -1,0 +1,54 @@
+{
+ "chain": "hamazushi",
+ "product_id": "hz-7a594e7a0d",
+ "name": "直火焼き牛たん握り",
+ "category": null,
+ "price": 429,
+ "price_max": null,
+ "price_note": "全国の価格（税込）です。一部店舗・北海道などでは価格が異なります",
+ "price_variants": null,
+ "launch_date": "2026-11-04",
+ "launch_date_source": "official_news_body",
+ "news_title": "大とろが今だけ100円（税込110円）！！「はま寿司のみなみまぐろ大とろとデカねた祭り」開催！",
+ "news_url": "https://www.hamazushi.com/topics/2026/1102000876.html",
+ "news_date": "2026-11-02",
+ "listed_at": null,
+ "planned_end_text": null,
+ "nutrition": null,
+ "nutrition_variants": null,
+ "nutrition_note": null,
+ "nutrition_source": {
+  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
+  "url": "https://www.hamazushi.com/menu/allergen/"
+ },
+ "allergens": null,
+ "allergen_source": {
+  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
+  "url": "https://www.hamazushi.com/menu/allergen/"
+ },
+ "allergen_note": null,
+ "limited_kind": "期間限定",
+ "stores_note": "お持ち帰り不可",
+ "official_url": "https://www.hamazushi.com/menu/",
+ "first_seen_at": "2026-11-04T14:29:02+09:00",
+ "last_seen_at": "2026-11-04",
+ "status": "on_sale",
+ "ended_observed_at": null,
+ "missed_runs": 0,
+ "price_history": [
+  {
+   "date": "2026-11-04",
+   "price": 429
+  }
+ ],
+ "launch_search_runs": 0,
+ "period": {
+  "start": null,
+  "end": null,
+  "sellout": false,
+  "quantity": null
+ },
+ "source_list": [
+  "hamazushi.com/menu/#anchor-limited"
+ ]
+}
