@@ -205,7 +205,10 @@ class TestItemPage(unittest.TestCase):
         self.assertIn("2026-11-02に公式サイトの一覧へ再び登場しました", h)
 
     def test_no_adsense_when_unset(self):
-        h = g.render_item_page(item())
+        from unittest import mock
+        with mock.patch.dict(g.CONFIG, {"adsense_client_id": "", "adsense_ad_slot": "",
+                                         "ga_measurement_id": ""}):
+            h = g.render_item_page(item())
         self.assertNotIn("adsbygoogle", h)
         self.assertNotIn("googletagmanager", h)
 
@@ -250,7 +253,6 @@ class TestAdSlots(unittest.TestCase):
         real = json.loads((Path(g.ROOT) / "config.json").read_text(encoding="utf-8"))
         self.assertEqual(real["adsense_client_id"], "")
         self.assertEqual(real["adsense_ad_slot"], "")
-        self.assertEqual(real["ga_measurement_id"], "")
 
     def test_head_script_and_vignette_opt_out(self):
         for name, h in self.pages().items():

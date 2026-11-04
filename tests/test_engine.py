@@ -46,10 +46,9 @@ class TestConfig(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 g("hamazushi", "https://a/3")
 
-    def test_ads_and_ga_start_empty(self):
+    def test_ads_start_empty(self):
         self.assertEqual(crawl.CONFIG["adsense_client_id"], "")
         self.assertEqual(crawl.CONFIG["adsense_ad_slot"], "")
-        self.assertEqual(crawl.CONFIG["ga_measurement_id"], "")
         self.assertEqual(crawl.CONFIG["top_title"], "回転寿司ポチ｜期間限定ネタのカロリー・価格アーカイブ")
         self.assertEqual(crawl.CONFIG["site_title"], "回転寿司ポチ")
 
