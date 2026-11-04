@@ -97,11 +97,9 @@ class TestItemPage(unittest.TestCase):
     def test_no_description_quote_only_facts_and_links(self):
         h = g.render_item_page(item())
         self.assertNotIn("<blockquote", h)
-        self.assertIn("説明文・画像は載せていません", h)
         self.assertIn('href="https://menu.sushiro.example/9001"', h)  # 公式のメニューページ
         self.assertIn('href="https://news.example/p1"', h)  # 公式のお知らせ・トピック
-        self.assertIn("出典：スシロー公式サイト（2026-11-03取得時点）", h)
-        self.assertIn("販売終了後は公式ページが削除されている場合があります", h)
+        self.assertIn("出典：スシロー公式サイト（2026-11-03時点）", h)
 
     def test_no_images_except_site_logo(self):
         h = g.render_item_page(item())
@@ -160,15 +158,15 @@ class TestItemPage(unittest.TestCase):
         self.assertIn("価格の履歴", h)
         self.assertIn("650〜750円", h)
 
-    def test_launch_date_note_with_and_without_source(self):
-        self.assertIn("発売日は公式のトピックの見出し（2026-08-30）によります", g.render_item_page(item()))
-        h = g.render_item_page(item(launch_date_source="official_news_body"))
-        self.assertIn("本文に商品名が載っていた記事", h)
-        self.assertIn("商品ごとの発売日とずれることがあります", h)
-        h = g.render_item_page(item(launch_date_source="menu_period", news_url=None, news_title=None))
-        self.assertIn("発売日は公式のメニューに載っている販売期間の表記によります", h)
+    def test_launch_date_note_only_when_unknown(self):
+        self.assertNotIn("発売日は", g.render_item_page(item()))
         h = g.render_item_page(item(launch_date=None, news_url=None, news_title=None))
-        self.assertIn("発売日を拾えなかったため、記録を始めた日（記録開始日）から表示しています。発売日ではありません", h)
+        self.assertIn("発売日は不明のため、記録を始めた日から表示しています", h)
+
+    def test_ended_note_only_on_ended_items(self):
+        self.assertNotIn("店頭ではまだ販売", g.render_item_page(item()))
+        it = item(status="ended", ended_observed_at="2026-11-11")
+        self.assertIn("店頭ではまだ販売していることもあります", g.render_item_page(it))
 
     def test_price_is_said_to_differ_by_store_on_every_item_page(self):
         for chain in ("sushiro", "kurasushi", "hamazushi", "kappasushi"):
@@ -178,24 +176,17 @@ class TestItemPage(unittest.TestCase):
 
     def test_ended_by_official_close_date_is_labelled(self):
         it = item(chain="kappasushi", status="ended", ended_observed_at="2026-11-11", ended_basis="official_close_date")
-        h = g.render_item_page(it)
-        self.assertIn("公式のメニューデータに載っている販売終了日", h)
-        self.assertNotIn("一覧から消えたことを確認した日です。一覧から外れただけ", h)
+        self.assertNotIn("店頭ではまだ販売", g.render_item_page(it))
         self.assertIn("終了日は公式のメニューデータの販売終了日", g.period_text(it, detailed=True))
-
-    def test_kappasushi_end_note_mentions_the_official_close_date(self):
-        h = g.render_item_page(item(chain="kappasushi"))
-        self.assertIn("公式のメニューデータに載っている販売終了日を過ぎた日、または公式の一覧から消えたことを確認した日", h)
 
     def test_hamazushi_kcal_comes_from_the_pdf_and_says_so(self):
         h = g.render_item_page(item(chain="hamazushi"))
-        self.assertIn("アレルゲン一覧表（PDF）の「熱量（一皿）」", h)
+        self.assertIn("カロリーは公式のアレルゲン一覧表（PDF）の値です", h)
 
     def test_sushiro_sellout_note(self):
         it = item(chain="sushiro", planned_end_text="2026-11-08まで（完売次第終了）")
         h = g.render_item_page(it)
         self.assertIn("終了予定：2026-11-08まで（完売次第終了）", h)
-        self.assertIn("予定より早く終わることがあります", h)
 
     def test_season_history_and_relaunch_notes(self):
         it = item(seasons=[{"launch_date": "2025-11-01", "ended_observed_at": "2026-01-10"}],
@@ -211,6 +202,15 @@ class TestItemPage(unittest.TestCase):
             h = g.render_item_page(item())
         self.assertNotIn("adsbygoogle", h)
         self.assertNotIn("googletagmanager", h)
+
+    def test_notes_come_after_nutrition(self):
+        # 注意書きが先に並ぶと、カロリーまで長くスクロールすることになる
+        it = item()
+        h = g.render_item_page(it)
+        nutrition = g.render_nutrition(it)
+        self.assertTrue(nutrition)
+        self.assertLess(h.index(nutrition), h.index("補足と出典"))
+        self.assertLess(h.index("補足と出典"), h.index("<p class='source'>"))
 
     def test_ga4_tag_present_when_set(self):
         from unittest import mock

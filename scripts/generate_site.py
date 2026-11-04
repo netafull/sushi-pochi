@@ -567,7 +567,6 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
 <header>
 <h1><a href="/">{logo_img}{esc(CONFIG["site_title"])}</a></h1>
 <p>{esc(CONFIG["site_description"])}{(" ｜ " + esc(header_note)) if header_note else ""}</p>
-{related_html}
 </header>
 {header_ad_html}
 <main>
@@ -1097,25 +1096,12 @@ def seo_description(item: dict) -> str:
     return ("、".join(bits) + "。")[:200]
 
 
-LAUNCH_SOURCE_LABEL = {
-    "menu_period": "公式のメニューに載っている販売期間の表記",
-    "official_json": "公式のメニューデータ（販売開始日）",
-    "official_news": "公式のトピックの見出し",
-    # 商品名が見出しに無く、本文に載っていた記事。記事が複数の商品を扱うため、商品ごとの発売日とずれることがある
-    "official_news_body": "公式のトピックの本文に商品名が載っていた記事(複数の商品をまとめた記事のため、商品ごとの発売日とずれることがあります)",
-}
-RECORD_REASON = {
-    "sushiro": "公式サイトの店舗別メニューで、販売期間の注記（[M/D～M/D]）が付いている",
-    "kurasushi": "公式サイトのメニューで、フェアの商品として載っている",
-    "hamazushi": "公式サイトのメニューの「期間限定」に載っている",
-    "kappasushi": "公式サイトのメニューデータで、「期間限定ネタ」に入っている",
-}
 # 価格が店舗で違うことの、チェーンごとの具体的な説明(商品ページに出す)
 PRICE_SCOPE = {
-    "sushiro": "スシローの価格は、代表の1店舗（{store}）の公式メニューの表示です。同じ商品でも店舗によって価格が違います（例：110円と140円）。",
-    "kurasushi": "くら寿司の価格は、公式メニューの標準の表示（［一皿110円〜店舗］の区分）です。店舗により価格が異なります。",
-    "hamazushi": "はま寿司の価格は、公式メニューの全国の表示です。一部店舗（北海道など）では価格が異なります。",
-    "kappasushi": "かっぱ寿司の価格は、公式メニューデータの店内の税込価格（持ち帰りは別に併記）です。店舗により異なることがあります。",
+    "sushiro": "価格は{store}の表示です。店舗によって異なります。",
+    "kurasushi": "価格は公式の標準の表示です。店舗により異なります。",
+    "hamazushi": "価格は公式の全国の表示です。店舗により異なる場合があります。",
+    "kappasushi": "価格は店内の税込価格です。店舗により異なります。",
 }
 
 
@@ -1125,35 +1111,17 @@ def price_scope_text(chain: str) -> str:
 
 
 def render_notes(item: dict) -> str:
-    """記録の理由、発売日の出どころ、価格の店舗差、チェーンごとの注意、昨季の販売期間。"""
+    """商品ごとに読む意味がある補足だけを出す。サイト全体の説明はフッターと各ページの案内にある。"""
     notes = []
     chain = item["chain"]
-    kind = item.get("limited_kind")
-    notes.append(f"{RECORD_REASON.get(chain, '公式サイトの一覧に載った')}メニューです"
-                 + (f"（記録上の区分：{esc(kind)}）。" if kind else "。"))
-    notes.append(esc(price_scope_text(chain)))
-    if item.get("launch_date"):
-        src = LAUNCH_SOURCE_LABEL.get(item.get("launch_date_source"), "公式の発表")
-        title = item.get("news_title") or ""
-        link = item.get("news_url") or ""
-        if item.get("launch_date_source") in ("official_news", "official_news_body"):
-            tl = f'<a href="{esc(link)}" target="_blank" rel="noopener">{esc(title)}</a>' if link and title else esc(title)
-            notes.append(f"発売日は{esc(src)}（{esc(item.get('news_date') or '')}）によります：{tl}")
-        else:
-            notes.append(f"発売日は{esc(src)}によります。")
-    else:
-        notes.append("公式の表示から発売日を拾えなかったため、記録を始めた日（記録開始日）から表示しています。発売日ではありません。")
-    if item.get("ended_basis") == "official_close_date":
-        notes.append("終了日は、公式のメニューデータに載っている販売終了日です。")
-    elif chain == "kappasushi":
-        notes.append("終了は、公式のメニューデータに載っている販売終了日を過ぎた日、または公式の一覧から消えたことを確認した日です。")
-    else:
-        notes.append("終了日は公式の最終販売日ではなく、公式サイトの一覧から消えたことを確認した日です。"
-                     "一覧から外れただけで、店頭ではまだ販売していることもあります。")
-    if chain == "sushiro":
-        notes.append("スシローの期間限定は「完売次第終了」の注記が付くことが多く、予定より早く終わることがあります。")
+    if not item.get("price_note"):  # 価格の直下に出ていれば繰り返さない
+        notes.append(esc(price_scope_text(chain)))
+    if not item.get("launch_date"):
+        notes.append("発売日は不明のため、記録を始めた日から表示しています。")
+    if is_ended(item) and item.get("ended_basis") != "official_close_date":
+        notes.append("店頭ではまだ販売していることもあります。")
     if chain == "hamazushi":
-        notes.append("はま寿司の公式サイトの商品ページにはカロリーが無く、アレルゲン一覧表（PDF）の「熱量（一皿）」の値を載せています。")
+        notes.append("カロリーは公式のアレルゲン一覧表（PDF）の値です。")
     if item.get("stores_note"):
         notes.append(f"取り扱い：{esc(item['stores_note'])}")
     for s_ in item.get("seasons") or []:
@@ -1180,10 +1148,8 @@ def render_sources(item: dict) -> str:
     if off.get("url"):
         links.append(link_html(f"{chain_name}公式サイト", off["url"]))
     fetched = (item.get("first_seen_at") or "")[:10]
-    return (f"<p class='source'>出典：{esc(CHAIN_SOURCE.get(chain, chain_name + '公式サイト'))}（{esc(fetched)}取得時点）。"
-            "商品名・価格・日付・カロリー・アレルゲンなどの事実情報を記録しています。説明文・画像は載せていません。</p>"
-            f"<p class='source'>{' ・ '.join(links)}</p>"
-            "<p class='warn'>※販売終了後は公式ページが削除されている場合があります。</p>")
+    return (f"<p class='source'>出典：{esc(CHAIN_SOURCE.get(chain, chain_name + '公式サイト'))}（{esc(fetched)}時点）</p>"
+            f"<p class='source'>{' ・ '.join(links)}</p>")
 
 
 def render_item_page(item: dict) -> str:
@@ -1246,14 +1212,15 @@ def render_item_page(item: dict) -> str:
 <p><strong>販売期間：</strong>{esc(period_text(item, detailed=True))}</p>
 {('<p><strong>カテゴリ：</strong>' + esc(item['category']) + '</p>') if item.get('category') else ''}
 {relaunch}
-{render_notes(item)}
-{render_sources(item)}
 {nutrition_html}
 {allergen_html}
 {history_html}
 {mid_ad}
 {reviews_html}
 {related_html}
+<h3>補足と出典</h3>
+{render_notes(item)}
+{render_sources(item)}
 {bottom_ad}
 </div>"""
     canonical = CONFIG.get("site_url", "") + item_url(item)
