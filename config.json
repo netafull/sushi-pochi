@@ -179,6 +179,11 @@
    "name": "カフェポチ",
    "desc": "カフェ季節限定メニュー",
    "url": "https://cafe.netaful.jp/"
+  },
+  {
+   "name": "カップ麺ポチ",
+   "desc": "カップ麺の新商品",
+   "url": "https://cupmen.netaful.jp/"
   }
  ],
  "related_keywords": [
