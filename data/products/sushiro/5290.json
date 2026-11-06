@@ -60,7 +60,7 @@
  "last_seen_at": "2026-11-06",
  "status": "on_sale",
  "ended_observed_at": null,
- "missed_runs": 0,
+ "missed_runs": 1,
  "price_history": [
   {
    "date": "2026-11-03",
@@ -77,5 +77,6 @@
  "nutrition_label": null,
  "source_list": [
   "akindo-sushiro.co.jp/menu/menu_detail/?s_id=434"
- ]
+ ],
+ "last_miss_date": "2026-11-07"
 }

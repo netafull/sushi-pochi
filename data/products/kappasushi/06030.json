@@ -33,7 +33,7 @@
  "stores_note": "店内飲食限定",
  "official_url": "https://www.kappasushi.jp/menu2",
  "first_seen_at": "2026-11-03T19:24:28+09:00",
- "last_seen_at": "2026-11-06",
+ "last_seen_at": "2026-11-07",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,
@@ -53,5 +53,5 @@
  "source_list": [
   "kappasushi.jp/master_data/json/menulist.json"
  ],
- "pdf_tried": "2026-10-15"
+ "pdf_tried": "2026-10-26"
 }
