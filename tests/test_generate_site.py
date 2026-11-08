@@ -539,5 +539,81 @@ class TestCardLinksAreRootAbsolute(unittest.TestCase):
         self.assertNotIn('href="items/', html)
 
 
+class TestHeadingStructure(unittest.TestCase):
+    """全ページ種別で h1 が1つだけ。トップ以外ではサイト名は h1 でなくページ自身の見出しが h1。
+    商品・一覧ページには BreadcrumbList の構造化データが入る。"""
+
+    @staticmethod
+    def h1s(html):
+        return [re.sub(r"<[^>]+>", "", m).strip() for m in re.findall(r"<h1[^>]*>(.*?)</h1>", html, re.S)]
+
+    @staticmethod
+    def breadcrumb(html):
+        for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S):
+            d = json.loads(m)
+            if d.get("@type") == "BreadcrumbList":
+                return [(e["position"], e["name"], e["item"]) for e in d["itemListElement"]]
+        return None
+
+    def build(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        tmp = Path(tmp.name)
+        saved = (g.PRODUCTS, g.DOCS)
+        g.PRODUCTS, g.DOCS = tmp / "products", tmp / "docs"
+        self.addCleanup(lambda: setattr(g, "PRODUCTS", saved[0]) or setattr(g, "DOCS", saved[1]))
+        (g.PRODUCTS / "sushiro").mkdir(parents=True)
+        (g.PRODUCTS / "sushiro/9001.json").write_text(json.dumps(item()), encoding="utf-8")
+        ended = item(product_id="9002", name="終了ネタ", status="ended", ended_observed_at="2026-10-01")
+        (g.PRODUCTS / "sushiro/9002.json").write_text(json.dumps(ended), encoding="utf-8")
+        g.main()
+        return g.DOCS
+
+    def test_every_page_type_has_exactly_one_correct_h1(self):
+        d = self.build()
+        read = lambda rel: (d / rel).read_text(encoding="utf-8")
+        self.assertEqual(self.h1s(read("index.html")), ["回転寿司ポチ"])
+        self.assertEqual(self.h1s(read("archive/index.html")), ["終了した期間限定ネタ (1件)"])
+        self.assertEqual(self.h1s(read("archive/2026-09/index.html")),
+                         ["2026年9月に始まった期間限定ネタ (1件)"])
+        self.assertEqual(self.h1s(read("chains/index.html")), ["チェーン一覧"])
+        self.assertEqual(self.h1s(read("chains/sushiro/index.html")), ["スシローの期間限定ネタ (2件・販売中1件)"])
+        self.assertEqual(self.h1s(read("chains/kurasushi/index.html")), ["くら寿司の期間限定ネタ"])  # 0件
+        self.assertEqual(self.h1s(read("items/sushiro-9001.html")), ["テストラテ"])
+
+    def test_site_name_is_not_a_heading_outside_top(self):
+        d = self.build()
+        top = (d / "index.html").read_text(encoding="utf-8")
+        self.assertRegex(top, r'<h1><a [^>]*href="/">')
+        for rel in ["archive/index.html", "chains/index.html", "chains/sushiro/index.html",
+                    "items/sushiro-9001.html"]:
+            h = (d / rel).read_text(encoding="utf-8")
+            self.assertRegex(h, r'<div class="site-name"><a [^>]*href="/">')
+
+    def test_item_sections_are_h2(self):
+        h = g.render_item_page(item(price_history=[{"date": "2026-11-03", "price": 600, "price_max": 700},
+                                                  {"date": "2026-11-05", "price": 650, "price_max": 700}]))
+        self.assertNotIn("<h3", h)
+        self.assertIn("<h2>補足と出典</h2>", h)
+
+    def test_breadcrumb_json_ld(self):
+        d = self.build()
+        base = g.CONFIG.get("site_url", "")
+        read = lambda rel: (d / rel).read_text(encoding="utf-8")
+        self.assertEqual(self.breadcrumb(read("items/sushiro-9001.html")),
+                         [(1, "トップ", base), (2, "スシロー", f"{base}chains/sushiro/"),
+                          (3, "テストラテ", f"{base}items/sushiro-9001.html")])
+        self.assertEqual(self.breadcrumb(read("chains/sushiro/index.html")),
+                         [(1, "トップ", base), (2, "スシロー", f"{base}chains/sushiro/")])
+        self.assertEqual(self.breadcrumb(read("chains/kurasushi/index.html"))[-1][1], "くら寿司")
+        self.assertEqual(self.breadcrumb(read("chains/index.html")),
+                         [(1, "トップ", base), (2, "チェーン一覧", f"{base}chains/")])
+        self.assertEqual(self.breadcrumb(read("archive/index.html"))[-1][1], "終了した期間限定ネタ")
+        self.assertEqual([n for _, n, _ in self.breadcrumb(read("archive/2026-09/index.html"))],
+                         ["トップ", "終了した期間限定ネタ", "2026年9月に始まった期間限定ネタ"])
+        self.assertIsNone(self.breadcrumb(read("index.html")))
+        self.assertNotIn('"Product"', read("items/sushiro-9001.html"))
+
+
 if __name__ == "__main__":
     unittest.main()

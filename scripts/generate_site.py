@@ -292,10 +292,11 @@ body { background: var(--bg); color: var(--text);
   font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; line-height: 1.6; }
 a { color: inherit; }
 header { padding: 24px 16px 12px; max-width: 980px; margin: 0 auto; }
-header h1 a { text-decoration: none; font-size: 22px;
+/* サイト名はトップだけ h1、他のページでは div.site-name(見た目は h1 と同じ) */
+header h1 a, header .site-name a { text-decoration: none; font-size: 22px;
   display: inline-flex; align-items: center; gap: 8px; }
 /* ロゴは文字とほぼ同じ高さに揃える(96px画像を縮小して表示。姉妹サイトと同じ) */
-header h1 img { width: 44px; height: 44px; }
+header h1 img, header .site-name img { width: 44px; height: 44px; }
 header p { color: var(--muted); font-size: 13px; margin-top: 4px; }
 nav.crumbs { font-size: 12px; color: var(--muted); margin-top: 8px; }
 nav.crumbs a { text-decoration: none; color: var(--accent); }
@@ -304,7 +305,8 @@ nav.crumbs a { text-decoration: none; color: var(--accent); }
 .sites a { font-size: 12px; padding: 3px 10px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--card); text-decoration: none; }
 main { max-width: 980px; margin: 0 auto; padding: 8px 16px 48px; }
-h2 { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--accent); margin: 24px 0 12px; }
+/* 一覧ページの見出し(h1.pt)は、見た目を h2 と同じにする */
+h2, h1.pt { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--accent); margin: 24px 0 12px; }
 .sort-bar { display: flex; gap: 8px; margin: 8px 0 16px; flex-wrap: wrap; align-items: center; }
 .sort-bar select, .sort-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
   border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
@@ -347,7 +349,8 @@ h2 { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--accent); 
 .detail table.multi th, .detail table.multi td { width: auto; text-align: right; white-space: nowrap; }
 .detail table.multi th:first-child { text-align: left; }
 .detail table.pv { max-width: 320px; }
-.detail h3 { margin-top: 16px; font-size: 14px; }
+/* 商品ページの節見出しは h2。見た目は従来の h3 と同じにする */
+.detail h2 { margin: 16px 0 0; padding: 0; border: 0; font-size: 14px; }
 .detail details { margin-top: 10px; font-size: 13px; }
 .detail details summary { cursor: pointer; color: var(--accent); }
 .detail blockquote { border-left: 3px solid var(--accent); margin: 12px 0; padding: 8px 14px;
@@ -479,7 +482,7 @@ def updated_label(now: datetime.datetime | None = None) -> str:
 
 
 def page_shell(title: str, description: str, body: str, canonical: str, extra_head: str = "",
-               header_ad: bool = False, header_note: str = "") -> str:
+               header_ad: bool = False, header_note: str = "", is_top: bool = False) -> str:
     site_url = CONFIG.get("site_url", "")
     # トップページのtitleは、サイト名のあとに説明を添える(姉妹サイトと同じ「名前｜説明」の形)
     page_title = (f'{esc(title)}｜{esc(CONFIG["site_title"])}' if title != CONFIG["site_title"]
@@ -541,6 +544,10 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
         f'｜ <a href="{esc(policy_url)}">メディアポリシー</a>\n' if policy_url else ""
     )
 
+    # サイト名の見出し: トップだけ h1。他のページはページ自身の見出しを h1 にするため div にする
+    site_name_tag = "h1" if is_top else "div"
+    site_name_cls = "" if site_name_tag == "h1" else ' class="site-name"'
+
     out = f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -565,7 +572,7 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
 </head>
 <body>
 <header>
-<h1><a href="/">{logo_img}{esc(CONFIG["site_title"])}</a></h1>
+<{site_name_tag}{site_name_cls}><a href="/">{logo_img}{esc(CONFIG["site_title"])}</a></{site_name_tag}>
 <p>{esc(CONFIG["site_description"])}{(" ｜ " + esc(header_note)) if header_note else ""}</p>
 </header>
 {header_ad_html}
@@ -797,24 +804,37 @@ def filter_bar(status: bool = True, default_status: str = "on_sale") -> str:
 </div>"""
 
 
+def breadcrumb_ld(trail: list[tuple[str, str]]) -> str:
+    """BreadcrumbList の JSON-LD(<script>タグ)。trail は (名前, 絶対URL) の並び。"""
+    data = json.dumps({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": i, "name": name, "item": url}
+            for i, (name, url) in enumerate(trail, 1)
+        ],
+    }, ensure_ascii=False).replace("<", "\\u003c")
+    return f'<script type="application/ld+json">{data}</script>'
+
+
 def render_grid_page(title: str, description: str, items: list[dict], canonical: str,
                       show_filters: bool = True, review_chain: str | None = None,
                       status_filter: bool = False, default_status: str = "all",
-                      empty_text: str = "商品がありません。") -> str:
+                      empty_text: str = "商品がありません。", extra_head: str = "") -> str:
     reviews_section = render_review_cards("ネタフルの最新レビュー", latest_reviews(review_chain, 5))
     if not items:
-        body = f"<h2>{esc(title)}</h2><p class='empty'>{esc(empty_text)}</p>\n{reviews_section}"
-        return page_shell(title, description, body, canonical)
+        body = f"<h1 class='pt'>{esc(title)}</h1><p class='empty'>{esc(empty_text)}</p>\n{reviews_section}"
+        return page_shell(title, description, body, canonical, extra_head=extra_head)
     filters = filter_bar(status_filter, default_status) if show_filters else ""
     on = sum(1 for it in items if not is_ended(it))
     count_text = f"{len(items)}件" if not status_filter else f"{len(items)}件・販売中{on}件"
-    body = f"""<h2>{esc(title)} ({count_text})</h2>
+    body = f"""<h1 class="pt">{esc(title)} ({count_text})</h1>
 {filters}
 {render_grouped(items)}
 {render_ad_template() if show_filters else ""}
 {SORT_JS if show_filters else ""}
 {reviews_section}"""
-    return page_shell(title, description, body, canonical, header_ad=True)
+    return page_shell(title, description, body, canonical, header_ad=True, extra_head=extra_head)
 
 
 RECENT_ENDED_DAYS = 30
@@ -900,6 +920,7 @@ placeholder="ネタ・メニュー名で検索（例: まぐろ、サーモン�
         extra_head=f'<script type="application/ld+json">{site_name_ld}</script>',
         header_ad=True,
         header_note=updated_label(),
+        is_top=True,
     )
 
 
@@ -920,7 +941,7 @@ def render_archive_index(items: list[dict]) -> str:
         if m:
             by_month[m] = by_month.get(m, 0) + 1
     if not by_month:
-        body = ("<h2>終了した期間限定ネタ</h2>"
+        body = ("<h1 class='pt'>終了した期間限定ネタ</h1>"
                 "<p class='empty'>まだ販売が終わったメニューはありません。"
                 "公式サイトの一覧から消えたことを連続で確認すると、ここに並びます。</p>")
     else:
@@ -928,20 +949,24 @@ def render_archive_index(items: list[dict]) -> str:
             f'<a href="/archive/{m}/">{m[:4]}年{int(m[5:7])}月に始まった期間限定ネタ<span class="n">{n}件</span></a>'
             for m, n in sorted(by_month.items(), reverse=True)
         )
-        body = f"""<h2>終了した期間限定ネタ ({len(ended)}件)</h2>
+        body = f"""<h1 class="pt">終了した期間限定ネタ ({len(ended)}件)</h1>
 <p class="empty">販売開始月ごとにまとめています。終了日は公式サイトの一覧から消えたことを確認した日です。</p>
 <div class="monthlist">
 {rows}
 </div>"""
     return page_shell("終了した期間限定ネタ", f"販売が終わった{CHAIN_LIST_TEXT}の期間限定ネタを、販売開始月ごとにまとめたアーカイブ",
-                       body, CONFIG.get("site_url", "") + "archive/")
+                       body, CONFIG.get("site_url", "") + "archive/",
+                       extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
+                                                 ("終了した期間限定ネタ", CONFIG.get("site_url", "") + "archive/")]))
 
 
 def render_chains_top() -> str:
     links = "\n".join(f'<a href="/chains/{c["slug"]}/">{esc(c["name"])}</a>' for c in CHAINS)
-    body = f'<h2>チェーン一覧</h2><div class="chainlist">{links}</div>'
+    body = f'<h1 class="pt">チェーン一覧</h1><div class="chainlist">{links}</div>'
     return page_shell("チェーン一覧", f"{CHAIN_LIST_TEXT}の期間限定ネタ一覧", body,
-                       CONFIG.get("site_url", "") + "chains/")
+                       CONFIG.get("site_url", "") + "chains/",
+                       extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
+                                                 ("チェーン一覧", CONFIG.get("site_url", "") + "chains/")]))
 
 
 NUTRITION_LABELS = [
@@ -982,7 +1007,7 @@ def render_nutrition(item: dict) -> str:
     if not nut:
         src = item.get("nutrition_source") or {}
         link = f"公式サイトでご確認ください：{link_html(src.get('label') or '公式サイト', src.get('url'))}" if src.get("url") else ""
-        return f"<h3>カロリー</h3><p class='note'>カロリーは未取得です。{link}</p>"
+        return f"<h2>カロリー</h2><p class='note'>カロリーは未取得です。{link}</p>"
     variants = item.get("nutrition_variants") or []
     note = nutrition_note_html(item)
     if len(variants) > 1:
@@ -991,7 +1016,7 @@ def render_nutrition(item: dict) -> str:
         if only_kcal:
             rows = "".join(f"<tr><th>{esc(x.get('label') or '標準')}</th><td>{x['nutrition']['kcal']:g}kcal</td></tr>"
                            for x in variants)
-            return (f"<h3>カロリー</h3><table>{rows}</table>{note}")
+            return (f"<h2>カロリー</h2><table>{rows}</table>{note}")
         parsed = [(v.get("label") or "標準", _nutrition_rows(v["nutrition"])) for v in variants]
         row_labels: list[str] = []
         for _, rows in parsed:
@@ -1003,7 +1028,7 @@ def render_nutrition(item: dict) -> str:
         for rl in row_labels:
             cells = "".join(f"<td>{esc(dict(rows).get(rl, '－'))}</td>" for _, rows in parsed)
             body_rows += f"<tr><th>{esc(rl)}</th>{cells}</tr>"
-        return (f"<h3>カロリー</h3><div class='tablewrap'><table class='multi'>{head}{body_rows}</table></div>"
+        return (f"<h2>カロリー</h2><div class='tablewrap'><table class='multi'>{head}{body_rows}</table></div>"
                 f"{note}")
     trs = "".join(f"<tr><th>{esc(label)}</th><td>{esc(val)}</td></tr>" for label, val in _nutrition_rows(nut))
     other = nut.get("other") or {}
@@ -1016,7 +1041,7 @@ def render_nutrition(item: dict) -> str:
             details = (f"<details><summary>そのほかの栄養成分（{len(other)}項目）を見る</summary>"
                        f"<table>{rows}</table></details>")
     label = item.get("nutrition_label") or (variants[0].get("label") if variants else None) or ""
-    head = f"<h3>カロリー{('（' + esc(label) + '）') if label else ''}</h3>"
+    head = f"<h2>カロリー{('（' + esc(label) + '）') if label else ''}</h2>"
     return (f"{head}<table>{trs}{inline_rows}</table>{details}{note}")
 
 
@@ -1071,7 +1096,7 @@ def render_price_history(item: dict) -> str:
         return s + ("（再登場時）" if h.get("relaunch") else "")
 
     rows = "".join(f"<tr><th>{esc(h['date'])}〜</th><td>{esc(one(h))}</td></tr>" for h in hist)
-    return (f"<h3>価格の履歴</h3><table>{rows}</table>"
+    return (f"<h2>価格の履歴</h2><table>{rows}</table>"
             "<p class='note'>公式サイトに出ていた価格を、変わった日に記録しています。</p>")
 
 
@@ -1160,7 +1185,7 @@ def render_item_page(item: dict) -> str:
     reviews_html = ""
     reviews = item_reviews(item)
     if reviews:
-        reviews_html = f"""<h3>ネタフルのレビュー</h3>
+        reviews_html = f"""<h2>ネタフルのレビュー</h2>
 <div class="review-grid">
 {chr(10).join(render_review_card(a) for a in reviews)}
 </div>"""
@@ -1169,7 +1194,7 @@ def render_item_page(item: dict) -> str:
     related = select_related_articles(item, ARTICLES_BY_ID)
     if related:
         label, related_articles_list = related
-        related_html = f"""<h3>関連するネタフルの記事（{esc(label)}）</h3>
+        related_html = f"""<h2>関連するネタフルの記事（{esc(label)}）</h2>
 <div class="review-grid">
 {chr(10).join(render_review_card(a) for a in related_articles_list)}
 </div>"""
@@ -1179,7 +1204,7 @@ def render_item_page(item: dict) -> str:
     if not reviews and not related:
         recent = latest_reviews(item["chain"], 4)
         if recent:
-            related_html = f"""<h3>{esc(chain_name)}のネタフル最新レビュー</h3>
+            related_html = f"""<h2>{esc(chain_name)}のネタフル最新レビュー</h2>
 <div class="review-grid">
 {chr(10).join(render_review_card(a) for a in recent)}
 </div>"""
@@ -1220,13 +1245,16 @@ def render_item_page(item: dict) -> str:
 {mid_ad}
 {reviews_html}
 {related_html}
-<h3>補足と出典</h3>
+<h2>補足と出典</h2>
 {render_notes(item)}
 {render_sources(item)}
 {bottom_ad}
 </div>"""
     canonical = CONFIG.get("site_url", "") + item_url(item)
-    return page_shell(seo_title(item), seo_description(item), body, canonical)
+    site_url = CONFIG.get("site_url", "")
+    crumbs_ld = breadcrumb_ld([("トップ", site_url), (chain_name, f"{site_url}chains/{item['chain']}/"),
+                               (item["name"], canonical)])
+    return page_shell(seo_title(item), seo_description(item), body, canonical, extra_head=crumbs_ld)
 
 
 # AIの学習データ集め専用のクローラーは断る。商品説明は各社公式サイトからの引用なので、
@@ -1326,6 +1354,9 @@ def main() -> int:
         page = render_grid_page(
             label, f"{m[:4]}年{int(m[5:7])}月に販売が始まり、すでに終了した{CHAIN_LIST_TEXT}の期間限定ネタ一覧",
             month_items, CONFIG.get("site_url", "") + f"archive/{m}/", show_filters=True,
+            extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
+                                      ("終了した期間限定ネタ", CONFIG.get("site_url", "") + "archive/"),
+                                      (label, CONFIG.get("site_url", "") + f"archive/{m}/")]),
         )
         (mdir / "index.html").write_text(page, encoding="utf-8")
     stale_months = 0
@@ -1349,6 +1380,8 @@ def main() -> int:
             CONFIG.get("site_url", "") + f"chains/{c['slug']}/",
             review_chain=c["slug"], status_filter=True, default_status="all",
             empty_text="まだ記録がありません。",
+            extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
+                                      (c["name"], CONFIG.get("site_url", "") + f"chains/{c['slug']}/")]),
         )
         (cdir / "index.html").write_text(page, encoding="utf-8")
 
