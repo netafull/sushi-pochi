@@ -1,4 +1,10 @@
 {
+ "_health": {
+  "sushiro": {
+   "days": 1,
+   "last_date": "2026-11-09"
+  }
+ },
  "hamazushi": {
   "pdf:allergen": {
    "checked_at": "2026-11-04T08:30:25+09:00",
