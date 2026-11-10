@@ -34,9 +34,9 @@
  "official_url": "https://www.kurasushi.co.jp/menu/",
  "first_seen_at": "2026-11-03T19:30:58+09:00",
  "last_seen_at": "2026-11-09",
- "status": "on_sale",
- "ended_observed_at": null,
- "missed_runs": 1,
+ "status": "ended",
+ "ended_observed_at": "2026-11-11",
+ "missed_runs": 2,
  "price_history": [
   {
    "date": "2026-11-03",
@@ -49,5 +49,5 @@
   "kurasushi.co.jp/menu/"
  ],
  "pdf_tried": "2026-10-30",
- "last_miss_date": "2026-11-10"
+ "last_miss_date": "2026-11-11"
 }
