@@ -10,11 +10,11 @@
  "kurasushi": {},
  "sushiro": {
   "_suspected_restructure": {
-   "consecutive_days": 1,
-   "count": 25,
-   "date": "2026-11-11",
+   "consecutive_days": 2,
+   "count": 24,
+   "date": "2026-11-12",
    "first_date": "2026-11-11",
-   "list_size": 26,
+   "list_size": 25,
    "reason": "suspected_restructure",
    "sample": [
     "5302",
@@ -23,7 +23,7 @@
     "5305",
     "5306"
    ],
-   "threshold": 24
+   "threshold": 23
   }
  }
 }

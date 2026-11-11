@@ -1,18 +1,18 @@
 {
  "hamazushi": {
-  "checked_at": "2026-11-11",
+  "checked_at": "2026-11-12",
   "count": 30
  },
  "kappasushi": {
-  "checked_at": "2026-11-11",
-  "count": 27
+  "checked_at": "2026-11-12",
+  "count": 19
  },
  "kurasushi": {
-  "checked_at": "2026-11-11",
+  "checked_at": "2026-11-12",
   "count": 34
  },
  "sushiro": {
-  "checked_at": "2026-11-11",
-  "count": 26
+  "checked_at": "2026-11-12",
+  "count": 25
  }
 }

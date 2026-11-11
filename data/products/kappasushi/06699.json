@@ -52,16 +52,16 @@
  "allergen_source": {
   "url": "https://www.kappasushi.jp/master_data/pdf/info_allergen.pdf",
   "label": "かっぱ寿司 メニュー別アレルゲン情報（公式PDF）",
-  "version": "2026-10-26",
-  "version_text": "2026年10月26日確認",
-  "fetched_at": "2026-11-07T08:30:36+09:00"
+  "version": "2026-11-06",
+  "version_text": "2026年11月6日確認",
+  "fetched_at": "2026-11-12T08:30:47+09:00"
  },
  "allergen_note": null,
  "limited_kind": "期間限定ネタ",
  "stores_note": null,
  "official_url": "https://www.kappasushi.jp/menu2",
  "first_seen_at": "2026-11-03T19:24:28+09:00",
- "last_seen_at": "2026-11-11",
+ "last_seen_at": "2026-11-12",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,
