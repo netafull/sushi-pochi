@@ -1,0 +1,54 @@
+{
+ "chain": "hamazushi",
+ "product_id": "hz-0138ce71b4",
+ "name": "炙り国産大切りさば",
+ "category": null,
+ "price": 110,
+ "price_max": null,
+ "price_note": "全国の価格（税込）です。一部店舗・北海道などでは価格が異なります",
+ "price_variants": null,
+ "launch_date": null,
+ "launch_date_source": null,
+ "news_title": null,
+ "news_url": null,
+ "news_date": null,
+ "listed_at": null,
+ "planned_end_text": null,
+ "nutrition": null,
+ "nutrition_variants": null,
+ "nutrition_note": null,
+ "nutrition_source": {
+  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
+  "url": "https://www.hamazushi.com/menu/allergen/"
+ },
+ "allergens": null,
+ "allergen_source": {
+  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
+  "url": "https://www.hamazushi.com/menu/allergen/"
+ },
+ "allergen_note": null,
+ "limited_kind": "期間限定",
+ "stores_note": null,
+ "official_url": "https://www.hamazushi.com/menu/",
+ "first_seen_at": "2026-11-13T08:30:22+09:00",
+ "last_seen_at": "2026-11-13",
+ "status": "on_sale",
+ "ended_observed_at": null,
+ "missed_runs": 0,
+ "price_history": [
+  {
+   "date": "2026-11-13",
+   "price": 110
+  }
+ ],
+ "launch_search_runs": 1,
+ "period": {
+  "start": null,
+  "end": null,
+  "sellout": false,
+  "quantity": null
+ },
+ "source_list": [
+  "hamazushi.com/menu/#anchor-limited"
+ ]
+}
