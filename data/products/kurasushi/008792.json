@@ -23,10 +23,17 @@
   "label": "くら寿司 メニュー",
   "url": "https://www.kurasushi.co.jp/menu/"
  },
- "allergens": null,
+ "allergens": {
+  "contains": [],
+  "partial": [],
+  "partial_meaning": "アレルギー物質を含む製品と同じラインで製造しています"
+ },
  "allergen_source": {
+  "url": "https://www.kurasushi.co.jp/common/pdf/kura_allergen.pdf",
   "label": "くら寿司 アレルゲン・カロリー情報（公式PDF）",
-  "url": "https://www.kurasushi.co.jp/common/pdf/kura_allergen.pdf"
+  "version": "2026-11-13",
+  "version_text": "2026年11月13日現在",
+  "fetched_at": "2026-11-14T08:30:31+09:00"
  },
  "allergen_note": null,
  "limited_kind": "フェア商品",
@@ -36,7 +43,7 @@
  "last_seen_at": "2026-11-13",
  "status": "on_sale",
  "ended_observed_at": null,
- "missed_runs": 0,
+ "missed_runs": 1,
  "price_history": [
   {
    "date": "2026-11-03",
@@ -48,5 +55,6 @@
  "source_list": [
   "kurasushi.co.jp/menu/"
  ],
- "pdf_tried": "2026-10-30"
+ "pdf_tried": "2026-10-30",
+ "last_miss_date": "2026-11-14"
 }

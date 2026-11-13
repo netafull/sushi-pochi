@@ -118,16 +118,16 @@
  "allergen_source": {
   "url": "https://www.kurasushi.co.jp/common/pdf/kura_allergen.pdf",
   "label": "くら寿司 アレルゲン・カロリー情報（公式PDF）",
-  "version": "2026-10-30",
-  "version_text": "2026年10月30日現在",
-  "fetched_at": "2026-11-03T19:31:01+09:00"
+  "version": "2026-11-13",
+  "version_text": "2026年11月13日現在",
+  "fetched_at": "2026-11-14T08:30:31+09:00"
  },
  "allergen_note": null,
  "limited_kind": "フェア商品",
  "stores_note": "お持ち帰り不可",
  "official_url": "https://www.kurasushi.co.jp/menu/",
  "first_seen_at": "2026-11-03T19:30:58+09:00",
- "last_seen_at": "2026-11-13",
+ "last_seen_at": "2026-11-14",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,

@@ -31,7 +31,7 @@
  "stores_note": null,
  "official_url": "https://www.hamazushi.com/menu/",
  "first_seen_at": "2026-11-13T08:30:22+09:00",
- "last_seen_at": "2026-11-13",
+ "last_seen_at": "2026-11-14",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,
@@ -41,7 +41,7 @@
    "price": 110
   }
  ],
- "launch_search_runs": 1,
+ "launch_search_runs": 2,
  "period": {
   "start": null,
   "end": null,
