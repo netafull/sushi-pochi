@@ -539,6 +539,29 @@ class TestCardLinksAreRootAbsolute(unittest.TestCase):
         self.assertNotIn('href="items/', html)
 
 
+class TestVisibleBreadcrumbs(unittest.TestCase):
+    """見えるパンくず（タイトルの下）。JSON-LD の trail があるページに出す（2026-11-13追加）。"""
+
+    def test_grid_page_with_crumbs_shows_nav_under_title(self):
+        trail = [("トップ", "https://sushi.netaful.jp/"),
+                 ("スシロー", "https://sushi.netaful.jp/chains/sushiro/")]
+        html = g.render_grid_page("スシローの期間限定ネタ", "d", [item()],
+                                  "https://sushi.netaful.jp/chains/sushiro/", crumbs=trail)
+        nav = ('<nav class="crumbs" aria-label="パンくずリスト"><a data-google-vignette="false" href="/">トップ</a>'
+               ' &gt; <span aria-current="page">スシロー</span></nav>')
+        self.assertIn(nav, html)
+        self.assertLess(html.index('<h1 class="pt">'), html.index(nav))
+
+    def test_grid_page_without_crumbs_has_no_nav(self):
+        html = g.render_grid_page("チェーン", "d", [item()], "https://x/")
+        self.assertNotIn('aria-label="パンくずリスト"', html)
+
+    def test_archive_index_and_chains_top_show_nav(self):
+        self.assertIn('<span aria-current="page">終了した期間限定ネタ</span>',
+                      g.render_archive_index([item()]))
+        self.assertIn('<span aria-current="page">チェーン一覧</span>', g.render_chains_top())
+
+
 class TestHeadingStructure(unittest.TestCase):
     """全ページ種別で h1 が1つだけ。トップ以外ではサイト名は h1 でなくページ自身の見出しが h1。
     商品・一覧ページには BreadcrumbList の構造化データが入る。"""

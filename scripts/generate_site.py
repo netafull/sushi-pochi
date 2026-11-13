@@ -817,19 +817,36 @@ def breadcrumb_ld(trail: list[tuple[str, str]]) -> str:
     return f'<script type="application/ld+json">{data}</script>'
 
 
+def breadcrumb_nav(trail: list[tuple[str, str]]) -> str:
+    """見えるパンくず（タイトルの下）。JSON-LD と同じ trail を渡し、末尾（現在のページ）はリンクにしない。
+    href はサイト内パスにする（商品ページの既存の nav.crumbs と同じ書き方）。"""
+    site_url = CONFIG.get("site_url", "")
+    parts = []
+    for name, url in trail[:-1]:
+        href = url[len(site_url):] if site_url and url.startswith(site_url) else url
+        parts.append(f'<a href="/{esc(href.lstrip("/"))}">{esc(name)}</a>')
+    if trail:
+        parts.append(f'<span aria-current="page">{esc(trail[-1][0])}</span>')
+    return '<nav class="crumbs" aria-label="パンくずリスト">' + " &gt; ".join(parts) + "</nav>"
+
+
 def render_grid_page(title: str, description: str, items: list[dict], canonical: str,
                       show_filters: bool = True, review_chain: str | None = None,
                       status_filter: bool = False, default_status: str = "all",
-                      empty_text: str = "商品がありません。", extra_head: str = "") -> str:
+                      empty_text: str = "商品がありません。", extra_head: str = "",
+                      crumbs: list[tuple[str, str]] | None = None) -> str:
+    # crumbs: パンくずの trail（JSON-LD と同じもの）。渡すと見えるパンくずをタイトルの下に出す
+    nav = breadcrumb_nav(crumbs) if crumbs else ""
+    navline = (nav + "\n") if nav else ""   # パンくずが無いページでは空白行も出さない（従来の出力と完全一致させる）
     reviews_section = render_review_cards("ネタフルの最新レビュー", latest_reviews(review_chain, 5))
     if not items:
-        body = f"<h1 class='pt'>{esc(title)}</h1><p class='empty'>{esc(empty_text)}</p>\n{reviews_section}"
+        body = f"<h1 class='pt'>{esc(title)}</h1>{nav}<p class='empty'>{esc(empty_text)}</p>\n{reviews_section}"
         return page_shell(title, description, body, canonical, extra_head=extra_head)
     filters = filter_bar(status_filter, default_status) if show_filters else ""
     on = sum(1 for it in items if not is_ended(it))
     count_text = f"{len(items)}件" if not status_filter else f"{len(items)}件・販売中{on}件"
     body = f"""<h1 class="pt">{esc(title)} ({count_text})</h1>
-{filters}
+{navline}{filters}
 {render_grouped(items)}
 {render_ad_template() if show_filters else ""}
 {SORT_JS if show_filters else ""}
@@ -940,8 +957,10 @@ def render_archive_index(items: list[dict]) -> str:
         m = start_month(it)
         if m:
             by_month[m] = by_month.get(m, 0) + 1
+    trail = [("トップ", CONFIG.get("site_url", "")), ("終了した期間限定ネタ", CONFIG.get("site_url", "") + "archive/")]
+    nav = breadcrumb_nav(trail)
     if not by_month:
-        body = ("<h1 class='pt'>終了した期間限定ネタ</h1>"
+        body = (f"<h1 class='pt'>終了した期間限定ネタ</h1>{nav}"
                 "<p class='empty'>まだ販売が終わったメニューはありません。"
                 "公式サイトの一覧から消えたことを連続で確認すると、ここに並びます。</p>")
     else:
@@ -950,23 +969,23 @@ def render_archive_index(items: list[dict]) -> str:
             for m, n in sorted(by_month.items(), reverse=True)
         )
         body = f"""<h1 class="pt">終了した期間限定ネタ ({len(ended)}件)</h1>
+{nav}
 <p class="empty">販売開始月ごとにまとめています。終了日は公式サイトの一覧から消えたことを確認した日です。</p>
 <div class="monthlist">
 {rows}
 </div>"""
     return page_shell("終了した期間限定ネタ", f"販売が終わった{CHAIN_LIST_TEXT}の期間限定ネタを、販売開始月ごとにまとめたアーカイブ",
                        body, CONFIG.get("site_url", "") + "archive/",
-                       extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
-                                                 ("終了した期間限定ネタ", CONFIG.get("site_url", "") + "archive/")]))
+                       extra_head=breadcrumb_ld(trail))
 
 
 def render_chains_top() -> str:
     links = "\n".join(f'<a href="/chains/{c["slug"]}/">{esc(c["name"])}</a>' for c in CHAINS)
-    body = f'<h1 class="pt">チェーン一覧</h1><div class="chainlist">{links}</div>'
+    trail = [("トップ", CONFIG.get("site_url", "")), ("チェーン一覧", CONFIG.get("site_url", "") + "chains/")]
+    body = f'<h1 class="pt">チェーン一覧</h1>{breadcrumb_nav(trail)}<div class="chainlist">{links}</div>'
     return page_shell("チェーン一覧", f"{CHAIN_LIST_TEXT}の期間限定ネタ一覧", body,
                        CONFIG.get("site_url", "") + "chains/",
-                       extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
-                                                 ("チェーン一覧", CONFIG.get("site_url", "") + "chains/")]))
+                       extra_head=breadcrumb_ld(trail))
 
 
 NUTRITION_LABELS = [
@@ -1357,6 +1376,9 @@ def main() -> int:
             extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
                                       ("終了した期間限定ネタ", CONFIG.get("site_url", "") + "archive/"),
                                       (label, CONFIG.get("site_url", "") + f"archive/{m}/")]),
+            crumbs=[("トップ", CONFIG.get("site_url", "")),
+                    ("終了した期間限定ネタ", CONFIG.get("site_url", "") + "archive/"),
+                    (label, CONFIG.get("site_url", "") + f"archive/{m}/")],
         )
         (mdir / "index.html").write_text(page, encoding="utf-8")
     stale_months = 0
@@ -1382,6 +1404,8 @@ def main() -> int:
             empty_text="まだ記録がありません。",
             extra_head=breadcrumb_ld([("トップ", CONFIG.get("site_url", "")),
                                       (c["name"], CONFIG.get("site_url", "") + f"chains/{c['slug']}/")]),
+            crumbs=[("トップ", CONFIG.get("site_url", "")),
+                    (c["name"], CONFIG.get("site_url", "") + f"chains/{c['slug']}/")],
         )
         (cdir / "index.html").write_text(page, encoding="utf-8")
 
