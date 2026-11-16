@@ -14,24 +14,71 @@
  "news_date": null,
  "listed_at": null,
  "planned_end_text": null,
- "nutrition": null,
- "nutrition_variants": null,
- "nutrition_note": null,
- "nutrition_source": {
-  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
-  "url": "https://www.hamazushi.com/menu/allergen/"
+ "nutrition": {
+  "kcal": 58.0
  },
- "allergens": null,
- "allergen_source": {
+ "nutrition_variants": null,
+ "nutrition_note": "公式サイトで公表されているのはカロリー(kcal)のみです",
+ "nutrition_source": {
+  "url": "https://images.zensho.co.jp/materials/hama-sushi/allergen/allergen.pdf",
   "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
-  "url": "https://www.hamazushi.com/menu/allergen/"
+  "version": "2026-11-17",
+  "version_text": "2026年11月17日更新",
+  "fetched_at": "2026-11-17T08:30:25+09:00"
+ },
+ "allergens": {
+  "contains": [
+   "さば"
+  ],
+  "partial": [
+   {
+    "name": "小麦",
+    "mark": "△"
+   },
+   {
+    "name": "卵",
+    "mark": "△"
+   },
+   {
+    "name": "乳",
+    "mark": "△"
+   },
+   {
+    "name": "牛肉",
+    "mark": "△"
+   },
+   {
+    "name": "大豆",
+    "mark": "△"
+   },
+   {
+    "name": "豚肉",
+    "mark": "△"
+   },
+   {
+    "name": "りんご",
+    "mark": "△"
+   },
+   {
+    "name": "ごま",
+    "mark": "△"
+   }
+  ],
+  "partial_meaning": "原材料の製造工場で、そのアレルゲンを含む製品を同じラインで製造しています"
+ },
+ "allergen_source": {
+  "url": "https://images.zensho.co.jp/materials/hama-sushi/allergen/allergen.pdf",
+  "label": "はま寿司 アレルゲン一覧表・店内（公式PDF）",
+  "version": "2026-11-17",
+  "version_text": "2026年11月17日更新",
+  "fetched_at": "2026-11-17T08:30:25+09:00"
  },
  "allergen_note": null,
  "limited_kind": "期間限定",
  "stores_note": null,
  "official_url": "https://www.hamazushi.com/menu/",
  "first_seen_at": "2026-11-13T08:30:22+09:00",
- "last_seen_at": "2026-11-16",
+ "last_seen_at": "2026-11-17",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,
@@ -50,5 +97,6 @@
  },
  "source_list": [
   "hamazushi.com/menu/#anchor-limited"
- ]
+ ],
+ "nutrition_label": "1皿あたり"
 }
