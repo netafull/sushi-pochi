@@ -71,17 +71,17 @@
  "stores_note": null,
  "official_url": "https://www.hamazushi.com/menu/",
  "first_seen_at": "2026-11-03T19:24:12+09:00",
- "last_seen_at": "2026-11-04",
- "status": "ended",
- "ended_observed_at": "2026-11-05",
- "missed_runs": 2,
+ "last_seen_at": "2026-11-18",
+ "status": "on_sale",
+ "ended_observed_at": null,
+ "missed_runs": 0,
  "price_history": [
   {
    "date": "2026-11-03",
    "price": 528
   }
  ],
- "launch_search_runs": 3,
+ "launch_search_runs": 1,
  "period": {
   "start": null,
   "end": null,
@@ -92,5 +92,20 @@
   "hamazushi.com/menu/#anchor-limited"
  ],
  "nutrition_label": "1皿あたり",
- "last_miss_date": "2026-11-05"
+ "last_miss_date": null,
+ "seasons": [
+  {
+   "launch_date": null,
+   "observed_start": "2026-11-03",
+   "ended_observed_at": "2026-11-05",
+   "news_url": null,
+   "news_title": null
+  }
+ ],
+ "relaunches": [
+  {
+   "ended_observed_at": "2026-11-05",
+   "reappeared_at": "2026-11-18"
+  }
+ ]
 }
