@@ -63,7 +63,7 @@ h2, h1.pt { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--ac
 .sort-bar select, .sort-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
   border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
 .chain-group h3 { font-size: 15px; margin: 18px 0 8px; padding-left: 8px; border-left: 4px solid var(--line); }
-.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .item { display: block; background: var(--card); border: 1px solid var(--line);
   border-radius: 10px; padding: 12px; text-decoration: none; }
 .item:hover { border-color: var(--accent); }
@@ -147,6 +147,14 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 .ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
 /* カード一覧(.grid)の中に差し込まれる枠は、カード1枚ぶんのマス(列幅)を使う */
 .grid > .ad-slot { max-width: none; margin: 0; }
+/* 2026-11-18 カテゴリアイコン(ドット絵32px)。元の32マスの倍数で出すと点がそろう。
+   カード=PC64px・スマホ48px、商品ページ見出し=64px。アイコンが無いカードは従来の見た目のまま */
+.cat-icon { width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
+.item.has-icon { display: flex; align-items: flex-start; gap: 12px; }
+.item.has-icon .item-main { flex: 1; min-width: 0; }
+.detail h1.with-icon { display: flex; align-items: center; gap: 12px; }
+.detail h1.with-icon .cat-icon { width: 64px; height: 64px; }
+@media (min-width: 700px) { .item.has-icon > .cat-icon { width: 64px; height: 64px; } }
 .chain-group[data-chain="sushiro"] h3 { border-color: var(--sushiro); }
 .item[data-chain="sushiro"] .badge { background: var(--sushiro); }
 .chain-group[data-chain="kurasushi"] h3 { border-color: var(--kurasushi); }
@@ -169,7 +177,7 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 <nav class="crumbs"><a data-google-vignette="false" href="/">トップ</a> &gt; <a data-google-vignette="false" href="/chains/kappasushi/">かっぱ寿司</a></nav>
 <div class="detail">
 <div class="chain-badge" style="background:var(--kappasushi)">かっぱ寿司</div>
-<h1>まぐろぶつ山かけ大葉包み</h1>
+<h1 class="with-icon"><img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="64" height="64" alt="寿司" loading="lazy" decoding="async">まぐろぶつ山かけ大葉包み</h1>
 <div class='tags'><span>期間限定ネタ</span><span>販売終了</span></div>
 <p class="price">176円（税込）<br><small>店内の税込価格です（この商品は店内飲食限定）</small></p>
 
@@ -237,6 +245,7 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 <a data-google-vignette="false" href="https://onsen.netaful.jp/">温泉宿ポチ<span class="lbl"> 温泉地の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://ritou.netaful.jp/">離島宿ポチ<span class="lbl"> 島の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://michinoeki.netaful.jp/">道の駅ポチ<span class="lbl"> 道の駅の駐車場と設備</span></a>
+<a data-google-vignette="false" href="https://shinhatsubai.netaful.jp/">新発売ポチ<span class="lbl"> 新商品を発売日でまとめて</span></a>
 </nav>
 </footer>
 

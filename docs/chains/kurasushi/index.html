@@ -63,7 +63,7 @@ h2, h1.pt { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--ac
 .sort-bar select, .sort-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
   border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
 .chain-group h3 { font-size: 15px; margin: 18px 0 8px; padding-left: 8px; border-left: 4px solid var(--line); }
-.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .item { display: block; background: var(--card); border: 1px solid var(--line);
   border-radius: 10px; padding: 12px; text-decoration: none; }
 .item:hover { border-color: var(--accent); }
@@ -147,6 +147,14 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 .ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
 /* カード一覧(.grid)の中に差し込まれる枠は、カード1枚ぶんのマス(列幅)を使う */
 .grid > .ad-slot { max-width: none; margin: 0; }
+/* 2026-11-18 カテゴリアイコン(ドット絵32px)。元の32マスの倍数で出すと点がそろう。
+   カード=PC64px・スマホ48px、商品ページ見出し=64px。アイコンが無いカードは従来の見た目のまま */
+.cat-icon { width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
+.item.has-icon { display: flex; align-items: flex-start; gap: 12px; }
+.item.has-icon .item-main { flex: 1; min-width: 0; }
+.detail h1.with-icon { display: flex; align-items: center; gap: 12px; }
+.detail h1.with-icon .cat-icon { width: 64px; height: 64px; }
+@media (min-width: 700px) { .item.has-icon > .cat-icon { width: 64px; height: 64px; } }
 .chain-group[data-chain="sushiro"] h3 { border-color: var(--sushiro); }
 .item[data-chain="sushiro"] .badge { background: var(--sushiro); }
 .chain-group[data-chain="kurasushi"] h3 { border-color: var(--kurasushi); }
@@ -184,349 +192,478 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 <section class="chain-group" data-chain="kurasushi">
 <h3>くら寿司 (<span class="cnt">43</span>件)</h3>
 <div class="grid" data-sortable>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-009022.html" data-kcal="104.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-009022.html" data-kcal="104.0"
    data-date="2026-11-14" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">寒ぶり</div>
   <div class="price">280円（税込）<span class="kcal">104kcal</span></div>
   <div class="meta">2026-11-14（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-009024.html" data-kcal="141.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-009024.html" data-kcal="141.0"
    data-date="2026-11-14" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">みなみまぐろ中とろ</div>
   <div class="price">280円（税込）<span class="kcal">141kcal</span></div>
   <div class="meta">2026-11-14（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-009025.html" data-kcal="57.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-009025.html" data-kcal="57.0"
    data-date="2026-11-14" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">寒ぶりとろ(一貫)</div>
   <div class="price">190円（税込）<span class="kcal">57kcal</span></div>
   <div class="meta">2026-11-14（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-009026.html" data-kcal="103.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-009026.html" data-kcal="103.0"
    data-date="2026-11-14" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">とろける穴子天（一貫）</div>
   <div class="price">180円（税込）<span class="kcal">103kcal</span></div>
   <div class="meta">2026-11-14（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-009027.html" data-kcal="56.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-009027.html" data-kcal="56.0"
    data-date="2026-11-14" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">【仙台名物】牛タン焼き（一貫）</div>
   <div class="price">280円（税込）<span class="kcal">56kcal</span></div>
   <div class="meta">2026-11-14（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-002939.html" data-kcal="138.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-002939.html" data-kcal="138.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">大学芋スティック</div>
   <div class="price">140円（税込）<span class="kcal">138kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008662.html" data-kcal="78.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008662.html" data-kcal="78.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">松茸あんかけ茶碗蒸し</div>
   <div class="price">380円（税込）<span class="kcal">78kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008670.html" data-kcal="126.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008670.html" data-kcal="126.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/chukaman.svg" width="32" height="32" alt="中華まん" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">ミニピザまん</div>
   <div class="price">190円（税込）<span class="kcal">126kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008671.html" data-kcal="172.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008671.html" data-kcal="172.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">別腹ちょこっとほうじ茶パフェ</div>
   <div class="price">310円（税込）<span class="kcal">172kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008682.html" data-kcal="24.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008682.html" data-kcal="24.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">紫キャベツの酢漬け</div>
   <div class="price">120円（税込）<span class="kcal">24kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008683.html" data-kcal="24.8"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008683.html" data-kcal="24.8"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">彩り野菜のピクルス</div>
   <div class="price">120円（税込）<span class="kcal">24.8kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008684.html" data-kcal="59.3"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008684.html" data-kcal="59.3"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">えびブロッコリーサラダ</div>
   <div class="price">120円（税込）<span class="kcal">59.3kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008751.html" data-kcal="204.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008751.html" data-kcal="204.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">越乃雪椿 無添蔵 秋限定</div>
   <div class="price">780円（税込）<span class="kcal">204kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008792.html" data-kcal="72.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008792.html" data-kcal="72.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-ended">終了</span>
   <div class="t">みなみまぐろ中とろ(一貫)</div>
   <div class="price">200円（税込）<span class="kcal">72kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜2026-11-15・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008794.html" data-kcal="75.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008794.html" data-kcal="75.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-ended">終了</span>
   <div class="t">丸ずわいがに二種盛り</div>
   <div class="price">380円（税込）<span class="kcal">75kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜2026-11-11・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008795.html" data-kcal="36.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008795.html" data-kcal="36.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-ended">終了</span>
   <div class="t">本ずわいがに(一貫)</div>
   <div class="price">280円（税込）<span class="kcal">36kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜2026-11-11・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008796.html" data-kcal="92.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008796.html" data-kcal="92.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-ended">終了</span>
   <div class="t">カンジャンケジャン</div>
   <div class="price">200円（税込）<span class="kcal">92kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜2026-11-11・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008797.html" data-kcal="80.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008797.html" data-kcal="80.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">【愛媛県産】活〆ぶりひら</div>
   <div class="price">270円（税込）<span class="kcal">80kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008798.html" data-kcal="362.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008798.html" data-kcal="362.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">蜜芋ブリュレパフェ</div>
   <div class="price">540円（税込）<span class="kcal">362kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008799.html" data-kcal="228.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008799.html" data-kcal="228.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">カラメルりんごデニッシュ</div>
   <div class="price">390円（税込）<span class="kcal">228kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008800.html" data-kcal="89.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008800.html" data-kcal="89.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">紋甲いかげそ軍艦</div>
   <div class="price">140円（税込）<span class="kcal">89kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008801.html" data-kcal="92.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008801.html" data-kcal="92.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">サーモンえびマヨベイク（一貫）</div>
   <div class="price">120円（税込）<span class="kcal">92kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008803.html" data-kcal="63.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008803.html" data-kcal="63.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">ホイコーローにぎり（一貫）</div>
   <div class="price">120円（税込）<span class="kcal">63kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008804.html" data-kcal="101.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008804.html" data-kcal="101.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">カステラ</div>
   <div class="price">150円（税込）<span class="kcal">101kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008805.html" data-kcal="115.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008805.html" data-kcal="115.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">エクレア</div>
   <div class="price">150円（税込）<span class="kcal">115kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008806.html" data-kcal="48.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008806.html" data-kcal="48.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">【グアテマラ産】コーヒーゼリー</div>
   <div class="price">150円（税込）<span class="kcal">48kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008807.html" data-kcal="127.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008807.html" data-kcal="127.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">マンゴー杏仁豆腐</div>
   <div class="price">240円（税込）<span class="kcal">127kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008808.html" data-kcal="352.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008808.html" data-kcal="352.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">揚げたい焼き</div>
   <div class="price">180円（税込）<span class="kcal">352kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008809.html" data-kcal="219.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008809.html" data-kcal="219.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">チキンタルタル</div>
   <div class="price">120円（税込）<span class="kcal">219kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008810.html" data-kcal="139.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008810.html" data-kcal="139.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">アホ</div>
   <div class="price">240円（税込）<span class="kcal">139kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008811.html" data-kcal="79.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008811.html" data-kcal="79.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">こはだ</div>
   <div class="price">110円（税込）<span class="kcal">79kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008812.html" data-kcal="38.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008812.html" data-kcal="38.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">超熟成とらふぐ（一貫）</div>
   <div class="price">240円（税込）<span class="kcal">38kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008813.html" data-kcal="37.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008813.html" data-kcal="37.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">超熟成 金目鯛（一貫）</div>
   <div class="price">110円（税込）<span class="kcal">37kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008814.html" data-kcal="161.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008814.html" data-kcal="161.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">ダブルス</div>
   <div class="price">240円（税込）<span class="kcal">161kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008815.html" data-kcal="42.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008815.html" data-kcal="42.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">超熟成 赤えび（一貫）</div>
   <div class="price">110円（税込）<span class="kcal">42kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008817.html" data-kcal="97.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008817.html" data-kcal="97.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">リトテツのユーリンチー寿司</div>
   <div class="price">230円（税込）<span class="kcal">97kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008820.html" data-kcal="221.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008820.html" data-kcal="221.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">おうとうのピーチマンゴーフラッペ</div>
   <div class="price">400円（税込）<span class="kcal">221kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008821.html" data-kcal="460.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008821.html" data-kcal="460.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/noodles.svg" width="32" height="32" alt="麺" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">【北海道名産】濃厚味噌バターコーンらーめん</div>
   <div class="price">540円（税込）<span class="kcal">460kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008823.html" data-kcal="239.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008823.html" data-kcal="239.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sozai.svg" width="32" height="32" alt="惣菜・揚げ物" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">えびと季節の天ぷら盛合せ</div>
   <div class="price">380円（税込）<span class="kcal">239kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008824.html" data-kcal="201.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008824.html" data-kcal="201.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/soup.svg" width="32" height="32" alt="スープ・グラタン" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-ended">終了</span>
   <div class="t">かに甲羅グラタン</div>
   <div class="price">580円（税込）<span class="kcal">201kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜2026-11-11・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008826.html" data-kcal="136.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008826.html" data-kcal="136.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">魚介ユッケ</div>
   <div class="price">270円（税込）<span class="kcal">136kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008827.html" data-kcal="131.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008827.html" data-kcal="131.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sozai.svg" width="32" height="32" alt="惣菜・揚げ物" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">まぐろ竜田揚げ</div>
   <div class="price">170円（税込）<span class="kcal">131kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kurasushi-008830.html" data-kcal="46.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kurasushi-008830.html" data-kcal="46.0"
    data-date="2026-11-03" data-chain="kurasushi" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">くら寿司</div><span class="st st-on">販売中</span>
   <div class="t">超熟成 びんちょう（一貫）</div>
   <div class="price">110円（税込）<span class="kcal">46kcal</span></div>
   <div class="meta">2026-11-03（記録開始日）〜 販売中・フェア商品</div>
   
+  </div>
 </a>
 </div>
 </section>
@@ -716,6 +853,7 @@ function computeAdPlan(counts, every, max) {
 <a data-google-vignette="false" href="https://onsen.netaful.jp/">温泉宿ポチ<span class="lbl"> 温泉地の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://ritou.netaful.jp/">離島宿ポチ<span class="lbl"> 島の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://michinoeki.netaful.jp/">道の駅ポチ<span class="lbl"> 道の駅の駐車場と設備</span></a>
+<a data-google-vignette="false" href="https://shinhatsubai.netaful.jp/">新発売ポチ<span class="lbl"> 新商品を発売日でまとめて</span></a>
 </nav>
 </footer>
 

@@ -3,6 +3,7 @@ import re
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import helpers  # noqa: F401
 import generate_site as g
@@ -105,7 +106,9 @@ class TestItemPage(unittest.TestCase):
         h = g.render_item_page(item())
         for src in re.findall(r'<img[^>]*src="([^"]*)"', h):
             # サイトのロゴと、運営者自身のブログ(ネタフル)のレビュー記事のアイキャッチだけ。各社の公式画像は表示しない
-            self.assertTrue(src == "/assets/logo.png" or src.startswith("https://netaful.jp/"), src)
+            # カテゴリアイコン(自前のドット絵SVG)も可
+            self.assertTrue(src == "/assets/logo.png" or src.startswith("/assets/icons/cat/")
+                            or src.startswith("https://netaful.jp/"), src)
             for official in ("akindo-sushiro.co.jp", "kurasushi.co.jp", "hamazushi.com", "kappasushi.jp", "zensho.co.jp", "cmsimage"):
                 self.assertNotIn(official, src)
 
@@ -413,7 +416,7 @@ class TestTop(unittest.TestCase):
             self.assertNotIn("ad-slot", inner)
             self.assertNotIn("<h", inner)
             # 直下の要素は <a class="item"> だけ
-            self.assertEqual(len(re.findall(r'<a class="item"', inner)), 2)
+            self.assertEqual(len(re.findall(r'<a class="item(?: has-icon)?"', inner)), 2)
 
     def test_status_filter_default_on_sale_and_ended_hidden_count(self):
         ended = item(product_id="2", status="ended", ended_observed_at="2026-10-06")
@@ -636,6 +639,47 @@ class TestHeadingStructure(unittest.TestCase):
                          ["トップ", "終了した期間限定ネタ", "2026年9月に始まった期間限定ネタ"])
         self.assertIsNone(self.breadcrumb(read("index.html")))
         self.assertNotIn('"Product"', read("items/sushiro-9001.html"))
+
+
+class TestCategoryIcon(unittest.TestCase):
+    """カードのカテゴリアイコン(2026-11-18追加)。"""
+
+    def test_mapped_category_icon_is_first_child(self):
+        card = g.render_card(item(chain="kurasushi", name="テスト商品", category="デザート"))
+        self.assertIn('src="/assets/icons/cat/sweets.svg"', card)
+        self.assertIn('alt="スイーツ"', card)
+        self.assertLess(card.index("cat-icon"), card.index('class="badge"'))
+
+    def test_no_category_uses_guess(self):
+        card = g.render_card(item(category=None, name="特選まぐろ握り"))
+        self.assertIn("/assets/icons/cat/sushi.svg", card)
+
+    def test_guess_not_shown_as_category(self):
+        h = g.render_item_page(item(category=None, name="特選まぐろ握り"))
+        self.assertNotIn("カテゴリ：", h)
+
+    def test_guessed_noodles(self):
+        card = g.render_card(item(category="サイドメニュー", name="濃厚味噌バターコーンらーめん"))
+        self.assertIn("/assets/icons/cat/noodles.svg", card)
+
+    def test_ambiguous_name_still_sushi_on_sushi_site(self):
+        # 回転寿司サイトでは、名前で別の種類と分からなければ寿司とみなす(推定の仕様)
+        self.assertEqual(g.category_icon(item(category=None, name="ダブルス"))[0], "sushi")
+
+    def test_unguessable_gets_no_icon(self):
+        with mock.patch.object(g, "guess_icon", return_value=None):
+            card = g.render_card(item(category=None, name="???"))
+        self.assertNotIn("cat-icon", card)
+        self.assertNotIn("has-icon", card)
+
+    def test_item_page_has_larger_icon(self):
+        h = g.render_item_page(item(category="にぎり", name="テスト"))
+        self.assertIn('width="64"', h)
+
+    def test_every_icon_slug_has_a_file(self):
+        slugs = set(g.CATEGORY_ICONS.values()) | set(g.ICON_LABELS)
+        for slug in slugs:
+            self.assertTrue((g.DOCS / "assets" / "icons" / "cat" / f"{slug}.svg").is_file(), slug)
 
 
 if __name__ == "__main__":

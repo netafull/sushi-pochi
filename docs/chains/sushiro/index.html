@@ -63,7 +63,7 @@ h2, h1.pt { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--ac
 .sort-bar select, .sort-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
   border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
 .chain-group h3 { font-size: 15px; margin: 18px 0 8px; padding-left: 8px; border-left: 4px solid var(--line); }
-.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .item { display: block; background: var(--card); border: 1px solid var(--line);
   border-radius: 10px; padding: 12px; text-decoration: none; }
 .item:hover { border-color: var(--accent); }
@@ -147,6 +147,14 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 .ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
 /* カード一覧(.grid)の中に差し込まれる枠は、カード1枚ぶんのマス(列幅)を使う */
 .grid > .ad-slot { max-width: none; margin: 0; }
+/* 2026-11-18 カテゴリアイコン(ドット絵32px)。元の32マスの倍数で出すと点がそろう。
+   カード=PC64px・スマホ48px、商品ページ見出し=64px。アイコンが無いカードは従来の見た目のまま */
+.cat-icon { width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
+.item.has-icon { display: flex; align-items: flex-start; gap: 12px; }
+.item.has-icon .item-main { flex: 1; min-width: 0; }
+.detail h1.with-icon { display: flex; align-items: center; gap: 12px; }
+.detail h1.with-icon .cat-icon { width: 64px; height: 64px; }
+@media (min-width: 700px) { .item.has-icon > .cat-icon { width: 64px; height: 64px; } }
 .chain-group[data-chain="sushiro"] h3 { border-color: var(--sushiro); }
 .item[data-chain="sushiro"] .badge { background: var(--sushiro); }
 .chain-group[data-chain="kurasushi"] h3 { border-color: var(--kurasushi); }
@@ -184,109 +192,148 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 <section class="chain-group" data-chain="sushiro">
 <h3>スシロー (<span class="cnt">13</span>件)</h3>
 <div class="grid" data-sortable>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5281.html" data-kcal="38.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5281.html" data-kcal="38.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">国産ほたて貝柱 1貫</div>
   <div class="price">110円（税込）<span class="kcal">38kcal</span></div>
   <div class="meta">2026-10-28〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5282.html" data-kcal="38.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5282.html" data-kcal="38.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">漬け国産ほたて貝柱 柚子のせ 1貫</div>
   <div class="price">110円（税込）<span class="kcal">38kcal</span></div>
   <div class="meta">2026-10-28〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5283.html" data-kcal="48.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5283.html" data-kcal="48.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">漬け国産ほたて貝柱 マヨ炙り 1貫</div>
   <div class="price">110円（税込）<span class="kcal">48kcal</span></div>
   <div class="meta">2026-10-28〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5284.html" data-kcal="53.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5284.html" data-kcal="53.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">長崎沖 天然本鮪ねぎとろ包み</div>
   <div class="price">110円（税込）<span class="kcal">53kcal</span></div>
   <div class="meta">2026-10-28〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5285.html" data-kcal="76.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5285.html" data-kcal="76.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">大切りムラサキいか食べ比べ</div>
   <div class="price">110円（税込）<span class="kcal">76kcal</span></div>
   <div class="meta">2026-10-28〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5287.html" data-kcal="155.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5287.html" data-kcal="155.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">彩りいなり(まぐろユッケ・サーモンバジル)</div>
   <div class="price">180円（税込）<span class="kcal">155kcal</span></div>
   <div class="meta">2026-10-28〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5289.html" data-kcal="100.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5289.html" data-kcal="100.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">炙り牛タン</div>
   <div class="price">280円（税込）<span class="kcal">100kcal</span></div>
   <div class="meta">2026-10-28〜2026-11-08・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5290.html" data-kcal="80.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5290.html" data-kcal="80.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">炙り金目鯛と黒ムツの盛り合わせ</div>
   <div class="price">320円（税込）<span class="kcal">80kcal</span></div>
   <div class="meta">2026-10-28〜2026-11-08・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5293.html" data-kcal="321.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5293.html" data-kcal="321.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/noodles.svg" width="32" height="32" alt="麺" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">辛旨 勝浦タンタンメン</div>
   <div class="price">480円（税込）<span class="kcal">321kcal</span></div>
   <div class="meta">2026-10-28〜2026-11-05・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5296.html" data-kcal="281.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5296.html" data-kcal="281.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">あったかフォンダンショコラ</div>
   <div class="price">330円（税込）<span class="kcal">281kcal</span></div>
   <div class="meta">2026-10-28〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5277.html" data-kcal="112.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5277.html" data-kcal="112.0"
    data-date="2026-10-21" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">第2弾 ポムポムプリン コラボピック付き てりたま軍艦</div>
   <div class="price">250円（税込）<span class="kcal">112kcal</span></div>
   <div class="meta">2026-10-21〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5278.html" data-kcal="55.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5278.html" data-kcal="55.0"
    data-date="2026-10-21" data-chain="sushiro" data-status="on_sale">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-on">販売中</span>
   <div class="t">第2弾 ポムポムプリン コラボピック付き いくら包み</div>
   <div class="price">280円（税込）<span class="kcal">55kcal</span></div>
   <div class="meta">2026-10-21〜 販売中・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5279.html" data-kcal="197.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5279.html" data-kcal="197.0"
    data-date="2026-10-21" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">第2弾 ポムポムプリン コラボファスナーポーチ付き つくローセット</div>
   <div class="price">740円（税込）<span class="kcal">197kcal</span></div>
   <div class="meta">2026-10-21〜2026-11-08・期間限定</div>
   
+  </div>
 </a>
 </div>
 </section>
@@ -476,6 +523,7 @@ function computeAdPlan(counts, every, max) {
 <a data-google-vignette="false" href="https://onsen.netaful.jp/">温泉宿ポチ<span class="lbl"> 温泉地の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://ritou.netaful.jp/">離島宿ポチ<span class="lbl"> 島の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://michinoeki.netaful.jp/">道の駅ポチ<span class="lbl"> 道の駅の駐車場と設備</span></a>
+<a data-google-vignette="false" href="https://shinhatsubai.netaful.jp/">新発売ポチ<span class="lbl"> 新商品を発売日でまとめて</span></a>
 </nav>
 </footer>
 

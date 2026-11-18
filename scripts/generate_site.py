@@ -20,6 +20,8 @@ import shutil
 import unicodedata
 from pathlib import Path
 
+from icon_guess import guess_icon
+
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
 DATA = ROOT / "data"
@@ -257,6 +259,36 @@ def period_text(item: dict, detailed: bool = False) -> str:
     return s
 
 
+# カテゴリ名 -> アイコン(docs/assets/icons/cat/<slug>.svg)。未登録のカテゴリ・カテゴリなしは商品名から推定する
+CATEGORY_ICONS = {
+    "にぎり": "sushi", "にぎり一貫": "sushi", "ぐんかん・細巻": "sushi", "デザート": "sweets",
+}
+# アイコンの代替テキスト。推定した種類はアイコンにだけ使い、カテゴリ名としては表示しない
+ICON_LABELS = {
+    "onigiri": "おにぎり", "bento": "弁当・ごはん", "donburi": "丼・定食", "curry": "カレー", "sushi": "寿司",
+    "sandwich": "サンドイッチ", "burger": "ハンバーガー", "bread": "パン", "noodles": "麺", "pasta": "パスタ",
+    "cupnoodle": "カップ麺", "sozai": "惣菜・揚げ物", "salad": "サラダ", "soup": "スープ・グラタン",
+    "chukaman": "中華まん", "sweets": "スイーツ", "ice": "アイス", "snack": "お菓子", "drink": "ドリンク",
+    "alcohol": "お酒", "other": "その他",
+}
+
+
+def category_icon(item: dict) -> tuple[str, str] | None:
+    """商品のアイコン (slug, 代替テキスト) を返す。決められなければ None(「その他」には逃がさない)。"""
+    slug = CATEGORY_ICONS.get(item.get("category") or "")
+    if not slug:
+        slug = guess_icon(item.get("name"), "sushi")
+    return (slug, ICON_LABELS[slug]) if slug else None
+
+
+def icon_img(item: dict, size: int) -> str:
+    icon = category_icon(item)
+    if not icon:
+        return ""
+    return (f'<img class="cat-icon" src="/assets/icons/cat/{icon[0]}.svg" width="{size}" height="{size}" '
+            f'alt="{esc(icon[1])}" loading="lazy" decoding="async">')
+
+
 def render_card(item: dict) -> str:
     chain_name = CHAIN_NAME.get(item["chain"], item["chain"])
     date = effective_date(item) or ""
@@ -266,13 +298,18 @@ def render_card(item: dict) -> str:
     status = "ended" if is_ended(item) else "on_sale"
     status_html = '<span class="st st-ended">終了</span>' if is_ended(item) else '<span class="st st-on">販売中</span>'
     kind = item.get("limited_kind") or ""
-    return f"""<a class="item" href="/{esc(item_url(item))}" data-kcal="{kcal if kcal is not None else ''}"
-   data-date="{esc(date)}" data-chain="{esc(item['chain'])}" data-status="{status}">
-  <div class="badge">{esc(chain_name)}</div>{status_html}
+    icon = icon_img(item, 32)
+    inner = f"""<div class="badge">{esc(chain_name)}</div>{status_html}
   <div class="t">{esc(item['name'])}</div>
   <div class="price">{esc(fmt_price(item))}{kcal_html}</div>
   <div class="meta">{esc(period_text(item))}{('・' + esc(kind)) if kind else ''}</div>
-  {review_html}
+  {review_html}"""
+    if icon:
+        # アイコンがあるカードだけ、左にアイコン・右に従来の中身の横並びにする
+        inner = f'{icon}\n  <div class="item-main">\n  {inner}\n  </div>'
+    return f"""<a class="item{' has-icon' if icon else ''}" href="/{esc(item_url(item))}" data-kcal="{kcal if kcal is not None else ''}"
+   data-date="{esc(date)}" data-chain="{esc(item['chain'])}" data-status="{status}">
+  {inner}
 </a>"""
 
 
@@ -311,7 +348,7 @@ h2, h1.pt { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--ac
 .sort-bar select, .sort-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
   border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
 .chain-group h3 { font-size: 15px; margin: 18px 0 8px; padding-left: 8px; border-left: 4px solid var(--line); }
-.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .item { display: block; background: var(--card); border: 1px solid var(--line);
   border-radius: 10px; padding: 12px; text-decoration: none; }
 .item:hover { border-color: var(--accent); }
@@ -395,6 +432,14 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 .ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
 /* カード一覧(.grid)の中に差し込まれる枠は、カード1枚ぶんのマス(列幅)を使う */
 .grid > .ad-slot { max-width: none; margin: 0; }
+/* 2026-11-18 カテゴリアイコン(ドット絵32px)。元の32マスの倍数で出すと点がそろう。
+   カード=PC64px・スマホ48px、商品ページ見出し=64px。アイコンが無いカードは従来の見た目のまま */
+.cat-icon { width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
+.item.has-icon { display: flex; align-items: flex-start; gap: 12px; }
+.item.has-icon .item-main { flex: 1; min-width: 0; }
+.detail h1.with-icon { display: flex; align-items: center; gap: 12px; }
+.detail h1.with-icon .cat-icon { width: 64px; height: 64px; }
+@media (min-width: 700px) { .item.has-icon > .cat-icon { width: 64px; height: 64px; } }
 """
 
 
@@ -1251,7 +1296,7 @@ def render_item_page(item: dict) -> str:
     body = f"""<nav class="crumbs"><a href="/">トップ</a> &gt; <a href="/chains/{esc(item['chain'])}/">{esc(chain_name)}</a></nav>
 <div class="detail">
 <div class="chain-badge" style="background:var(--{esc(item['chain'])})">{esc(chain_name)}</div>
-<h1>{esc(item['name'])}</h1>
+<h1 class="{'with-icon' if icon_img(item, 64) else ''}">{icon_img(item, 64)}{esc(item['name'])}</h1>
 {kind_html}
 <p class="price">{price_html}{price_note}</p>
 {render_price_variants(item)}

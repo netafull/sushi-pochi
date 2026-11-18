@@ -63,7 +63,7 @@ h2, h1.pt { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--ac
 .sort-bar select, .sort-bar input { font-size: 13px; padding: 5px 8px; border-radius: 6px;
   border: 1px solid var(--line); background: var(--card); color: var(--text); font-family: inherit; }
 .chain-group h3 { font-size: 15px; margin: 18px 0 8px; padding-left: 8px; border-left: 4px solid var(--line); }
-.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .item { display: block; background: var(--card); border: 1px solid var(--line);
   border-radius: 10px; padding: 12px; text-decoration: none; }
 .item:hover { border-color: var(--accent); }
@@ -147,6 +147,14 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 .ad-slot:has(ins[data-ad-status="unfilled"]) { display: none; }
 /* カード一覧(.grid)の中に差し込まれる枠は、カード1枚ぶんのマス(列幅)を使う */
 .grid > .ad-slot { max-width: none; margin: 0; }
+/* 2026-11-18 カテゴリアイコン(ドット絵32px)。元の32マスの倍数で出すと点がそろう。
+   カード=PC64px・スマホ48px、商品ページ見出し=64px。アイコンが無いカードは従来の見た目のまま */
+.cat-icon { width: 48px; height: 48px; flex-shrink: 0; image-rendering: pixelated; }
+.item.has-icon { display: flex; align-items: flex-start; gap: 12px; }
+.item.has-icon .item-main { flex: 1; min-width: 0; }
+.detail h1.with-icon { display: flex; align-items: center; gap: 12px; }
+.detail h1.with-icon .cat-icon { width: 64px; height: 64px; }
+@media (min-width: 700px) { .item.has-icon > .cat-icon { width: 64px; height: 64px; } }
 .chain-group[data-chain="sushiro"] h3 { border-color: var(--sushiro); }
 .item[data-chain="sushiro"] .badge { background: var(--sushiro); }
 .chain-group[data-chain="kurasushi"] h3 { border-color: var(--kurasushi); }
@@ -183,178 +191,241 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 <section class="chain-group" data-chain="sushiro">
 <h3>スシロー (<span class="cnt">4</span>件)</h3>
 <div class="grid" data-sortable>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5289.html" data-kcal="100.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5289.html" data-kcal="100.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">炙り牛タン</div>
   <div class="price">280円（税込）<span class="kcal">100kcal</span></div>
   <div class="meta">2026-10-28〜2026-11-08・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5290.html" data-kcal="80.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5290.html" data-kcal="80.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">炙り金目鯛と黒ムツの盛り合わせ</div>
   <div class="price">320円（税込）<span class="kcal">80kcal</span></div>
   <div class="meta">2026-10-28〜2026-11-08・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5293.html" data-kcal="321.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5293.html" data-kcal="321.0"
    data-date="2026-10-28" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/noodles.svg" width="32" height="32" alt="麺" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">辛旨 勝浦タンタンメン</div>
   <div class="price">480円（税込）<span class="kcal">321kcal</span></div>
   <div class="meta">2026-10-28〜2026-11-05・期間限定</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/sushiro-5279.html" data-kcal="197.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/sushiro-5279.html" data-kcal="197.0"
    data-date="2026-10-21" data-chain="sushiro" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sweets.svg" width="32" height="32" alt="スイーツ" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">スシロー</div><span class="st st-ended">終了</span>
   <div class="t">第2弾 ポムポムプリン コラボファスナーポーチ付き つくローセット</div>
   <div class="price">740円（税込）<span class="kcal">197kcal</span></div>
   <div class="meta">2026-10-21〜2026-11-08・期間限定</div>
   
+  </div>
 </a>
 </div>
 </section>
 <section class="chain-group" data-chain="kappasushi">
 <h3>かっぱ寿司 (<span class="cnt">17</span>件)</h3>
 <div class="grid" data-sortable>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06001.html" data-kcal="283.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06001.html" data-kcal="283.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/ice.svg" width="32" height="32" alt="アイス" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">ふじりんごと紅茶ゼリーのプレミアムプリンパフェ ～醤油キャラメルアイス～</div>
   <div class="price">540円（税込）<span class="kcal">283kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06012.html" data-kcal="75.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06012.html" data-kcal="75.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">合鴨ロース ～ふじりんごのクリーミーマヨソース～</div>
   <div class="price">150円（税込）<span class="kcal">75kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06020.html" data-kcal="158.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06020.html" data-kcal="158.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">えび天にぎり ～ふじりんごのクリーミーマヨソース～</div>
   <div class="price">190円（税込）<span class="kcal">158kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06032.html" data-kcal="87.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06032.html" data-kcal="87.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">サラダ軍艦 ～ふじりんごのクリーミーマヨソース～</div>
   <div class="price">150円（税込）<span class="kcal">87kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06044.html" data-kcal="19.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06044.html" data-kcal="19.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">トッピング ふじりんごソース</div>
   <div class="price">60円（税込）<span class="kcal">19kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06046.html" data-kcal="36.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06046.html" data-kcal="36.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">上赤身～ミナミマグロ～</div>
   <div class="price">121円（税込）<span class="kcal">36kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06053.html" data-kcal="167.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06053.html" data-kcal="167.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">ごち寿司 贅沢 ミナミマグロ ３種食べ比べ</div>
   <div class="price">594円（税込）<span class="kcal">167kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06058.html" data-kcal="39.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06058.html" data-kcal="39.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">上赤身 漬け～ミナミマグロ～ 柚子のせ</div>
   <div class="price">176円（税込）<span class="kcal">39kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06068.html" data-kcal="98.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06068.html" data-kcal="98.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">大とろ お値段そのまま！ とろぶつのせ</div>
   <div class="price">297円（税込）<span class="kcal">98kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06078.html" data-kcal="235.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06078.html" data-kcal="235.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">まぐろ２種食べ比べ 鉄火小丼</div>
   <div class="price">594円（税込）<span class="kcal">235kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06081.html" data-kcal="425.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06081.html" data-kcal="425.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">まぐろ２種食べ比べ 鉄火小丼セット</div>
   <div class="price">1,089円（税込）<span class="kcal">425kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06092.html" data-kcal="42.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06092.html" data-kcal="42.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">まぐろぶつ山かけ大葉包み</div>
   <div class="price">176円（税込）<span class="kcal">42kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06099.html" data-kcal="39.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06099.html" data-kcal="39.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">〆こはだ</div>
   <div class="price">110円（税込）<span class="kcal">39kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06101.html" data-kcal="40.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06101.html" data-kcal="40.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">〆こはだ炙り</div>
   <div class="price">110円（税込）<span class="kcal">40kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06109.html" data-kcal="207.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06109.html" data-kcal="207.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">ごち寿司 かっぱの”江戸前”寿司５貫プレート</div>
   <div class="price">649円（税込）<span class="kcal">207kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06154.html" data-kcal="105.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06154.html" data-kcal="105.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">浜焼き風 サワラ</div>
   <div class="price">176円（税込）<span class="kcal">105kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
-<a data-google-vignette="false" class="item" href="/items/kappasushi-06487.html" data-kcal="67.0"
+<a data-google-vignette="false" class="item has-icon" href="/items/kappasushi-06487.html" data-kcal="67.0"
    data-date="2026-10-22" data-chain="kappasushi" data-status="ended">
+  <img class="cat-icon" src="/assets/icons/cat/sushi.svg" width="32" height="32" alt="寿司" loading="lazy" decoding="async">
+  <div class="item-main">
   <div class="badge">かっぱ寿司</div><span class="st st-ended">終了</span>
   <div class="t">ミナミマグロ 中とろ</div>
   <div class="price">209円（税込）<span class="kcal">67kcal</span></div>
   <div class="meta">2026-10-22〜2026-11-13・期間限定ネタ</div>
   
+  </div>
 </a>
 </div>
 </section>
@@ -544,6 +615,7 @@ function computeAdPlan(counts, every, max) {
 <a data-google-vignette="false" href="https://onsen.netaful.jp/">温泉宿ポチ<span class="lbl"> 温泉地の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://ritou.netaful.jp/">離島宿ポチ<span class="lbl"> 島の空室を、すぐ探す</span></a>
 <a data-google-vignette="false" href="https://michinoeki.netaful.jp/">道の駅ポチ<span class="lbl"> 道の駅の駐車場と設備</span></a>
+<a data-google-vignette="false" href="https://shinhatsubai.netaful.jp/">新発売ポチ<span class="lbl"> 新商品を発売日でまとめて</span></a>
 </nav>
 </footer>
 
