@@ -436,7 +436,8 @@ class TestTop(unittest.TestCase):
 
     def test_about_is_short_and_states_facts_only_policy(self):
         h = g.render_top([item()]).replace(' data-google-vignette="false"', "")
-        self.assertIn('<a href="https://netaful.jp/">ネタフル</a>', h)
+        # 運営者の一文（「運営はブログ『ネタフル』のコグレです」）は2026-11-16にフッター・aboutから外した
+        self.assertNotIn("運営はブログ", h)
         self.assertIn("非公式サイト", h)
         self.assertIn("記録しているのは事実情報だけ", h)
         self.assertIn("説明文と画像は載せていません", h)
