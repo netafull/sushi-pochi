@@ -413,12 +413,7 @@
    }
   ]
  },
- "errors": [
-  "sushiro tag=None page=1: JSON解析失敗 Expecting value [13783バイト, text/html, 先頭: '<!DOCTYPE html> <html lang=\"en\"> <head>   <meta charset=\"utf8\">   <meta name=\"viewport\" content=\"width=device-width,init']: line 1 column 1 (char 0)",
-  "kurasushi tag=None page=1: JSON解析失敗 Expecting value [13837バイト, text/html, 先頭: '<!DOCTYPE html> <html lang=\"en\"> <head>   <meta charset=\"utf8\">   <meta name=\"viewport\" content=\"width=device-width,init']: line 1 column 1 (char 0)",
-  "hamazushi tag=None page=1: JSON解析失敗 Expecting value [13816バイト, text/html, 先頭: '<!DOCTYPE html> <html lang=\"en\"> <head>   <meta charset=\"utf8\">   <meta name=\"viewport\" content=\"width=device-width,init']: line 1 column 1 (char 0)",
-  "kappasushi tag=None page=1: JSON解析失敗 Expecting value [13939バイト, text/html, 先頭: '<!DOCTYPE html> <html lang=\"en\"> <head>   <meta charset=\"utf8\">   <meta name=\"viewport\" content=\"width=device-width,init']: line 1 column 1 (char 0)"
- ],
- "fetched_at": "2026-11-19T08:39:03+09:00",
+ "errors": [],
+ "fetched_at": "2026-11-20T08:31:05+09:00",
  "matches": {}
 }
