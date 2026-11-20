@@ -2,22 +2,5 @@
  "hamazushi": {},
  "kappasushi": {},
  "kurasushi": {},
- "sushiro": {
-  "_suspected_restructure": {
-   "consecutive_days": 10,
-   "count": 24,
-   "date": "2026-11-20",
-   "first_date": "2026-11-11",
-   "list_size": 25,
-   "reason": "suspected_restructure",
-   "sample": [
-    "5302",
-    "5303",
-    "5304",
-    "5305",
-    "5306"
-   ],
-   "threshold": 23
-  }
- }
+ "sushiro": {}
 }
