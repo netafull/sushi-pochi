@@ -1271,7 +1271,6 @@ def render_sources(item: dict) -> str:
     """出典の1行。公式ページへのリンクを1つ続ける。説明文は載せない。"""
     chain = item["chain"]
     chain_name = CHAIN_NAME.get(chain, chain)
-    off = CHAIN_OFFICIAL.get(chain, {})
     url = source_url(item)
     tail = f" ・ {link_html('公式ページを見る', url)}" if url else ""
     fetched = jp_date((item.get("first_seen_at") or "")[:10])

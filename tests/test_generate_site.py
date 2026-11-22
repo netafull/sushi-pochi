@@ -239,6 +239,14 @@ class TestItemPage(unittest.TestCase):
         h = g.render_item_page(item(seasons=[], nutrition_changes=[], nutrition_source=None, price_note="サイズにより異なります"))
         self.assertNotIn("<h2>補足</h2>", h)
 
+    def test_nutrition_source_line(self):
+        h = g.render_item_page(item())
+        self.assertIn("栄養成分の出典：<a", h)
+        self.assertLess(h.index("<p class='source'>"), h.index("栄養成分の出典："))
+        # 商品の出典リンクと同じURLなら出さない
+        h = g.render_item_page(item(nutrition_source={"label": "x", "url": "https://menu.sushiro.example/9001"}))
+        self.assertNotIn("栄養成分の出典：", h)
+
     def test_source_date_format(self):
         self.assertEqual(g.jp_date("2026-10-07"), "2026年10月7日")
 
