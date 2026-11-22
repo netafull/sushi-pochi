@@ -1241,9 +1241,6 @@ def render_tail_notes(item: dict) -> str:
     notes = []
     if item["chain"] == "hamazushi":
         notes.append("カロリーは公式のアレルゲン一覧表（PDF）の値です。")
-    nut_src = item.get("nutrition_source") or {}
-    if item.get("nutrition") and nut_src.get("url") and nut_src["url"] != item.get("official_url"):
-        notes.append(f"栄養情報の出典：{link_html(nut_src.get('label') or '公式の栄養情報', nut_src['url'])}")
     for s_ in item.get("seasons") or []:
         start = s_.get("launch_date") or (f"{s_['observed_start']}（記録開始日）" if s_.get("observed_start") else "開始日不明")
         notes.append(f"昨季の掲載：{esc(start)}〜{esc(s_.get('ended_observed_at') or '')}（終了日は{ENDED_NOTE}）")
@@ -1255,14 +1252,27 @@ def render_tail_notes(item: dict) -> str:
     return "".join(f"<p class='note'>{n}</p>" for n in notes)
 
 
+def source_url(item: dict) -> str:
+    """商品に最も近い公式ページを1つ: メニューページ > お知らせ > 栄養情報 > 公式サイト。"""
+    off = CHAIN_OFFICIAL.get(item["chain"], {})
+    nut_src = item.get("nutrition_source") or {}
+    return item.get("official_url") or item.get("news_url") or nut_src.get("url") or off.get("url") or ""
+
+
+def render_nutrition_source(item: dict) -> str:
+    """栄養成分の欄の末尾に、情報元ページへのリンク。商品の出典リンクと同じURLなら出さない。"""
+    nut_src = item.get("nutrition_source") or {}
+    if not item.get("nutrition") or not nut_src.get("url") or nut_src["url"] == source_url(item):
+        return ""
+    return f"<p class='note'>栄養成分の出典：{link_html(nut_src.get('label') or '公式の栄養成分ページ', nut_src['url'])}</p>"
+
+
 def render_sources(item: dict) -> str:
     """出典の1行。公式ページへのリンクを1つ続ける。説明文は載せない。"""
     chain = item["chain"]
     chain_name = CHAIN_NAME.get(chain, chain)
     off = CHAIN_OFFICIAL.get(chain, {})
-    nut_src = item.get("nutrition_source") or {}
-    # 商品に最も近い公式ページを1つだけ: メニューページ > お知らせ > 栄養情報 > 公式サイト
-    url = item.get("official_url") or item.get("news_url") or nut_src.get("url") or off.get("url")
+    url = source_url(item)
     tail = f" ・ {link_html('公式ページを見る', url)}" if url else ""
     fetched = jp_date((item.get("first_seen_at") or "")[:10])
     return (f"<p class='source'>出典：{esc(CHAIN_SOURCE.get(chain, chain_name + '公式サイト'))}"
@@ -1299,7 +1309,7 @@ def render_item_page(item: dict) -> str:
 {chr(10).join(render_review_card(a) for a in recent)}
 </div>"""
 
-    nutrition_html = render_nutrition(item)
+    nutrition_html = render_nutrition(item) + render_nutrition_source(item)
     allergen_html = render_allergens(item)
     history_html = render_price_history(item)
     has_extras = bool(item.get("nutrition") or item.get("allergens") or history_html)
