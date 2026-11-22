@@ -587,10 +587,14 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
     )
     related_html = f'<nav class="sites"><span class="lbl">関連サイト</span>\n{links}\n</nav>' if related else ""
 
-    policy_url = CONFIG.get("policy_url", "")
-    policy_link = (
-        f'｜ <a href="{esc(policy_url)}">メディアポリシー</a>\n' if policy_url else ""
-    )
+    # 広告・解析の開示文(実際に使っているものだけ書く)
+    if adsense_id and ga_id:
+        disclosure = "当サイトは広告（Google AdSense）を掲載し、アクセス解析（Googleアナリティクス）を使っています。いずれもCookieを使うことがあります。"
+    elif ga_id:
+        disclosure = "当サイトはアクセス解析（Googleアナリティクス）を使っています。Cookieを使うことがあります。"
+    else:
+        disclosure = ""
+    disclosure_line = disclosure + "\n" if disclosure else ""
 
     # サイト名の見出し: トップだけ h1。他のページはページ自身の見出しを h1 にするため div にする
     site_name_tag = "h1" if is_top else "div"
@@ -629,7 +633,7 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
 <footer>
 価格は公式サイトの表示（スシローは特定の1店舗・巣本店の値）で、店舗により異なります。販売期間・販売状況は取得した時点のものです。最新の状況は各社公式サイトでご確認ください。
 当サイトは{esc(CHAIN_LIST_TEXT)}各社とは関係のない非公式サイトです。記録しているのは事実情報だけで、説明文・画像は載せていません。
-{policy_link}｜ <a href="/archive/">終了した期間限定ネタ</a>
+{disclosure_line}｜ <a href="/archive/">終了した期間限定ネタ</a>
 {related_html}
 {SERIES_INDEX_HTML}
 </footer>
