@@ -100,7 +100,7 @@ class TestItemPage(unittest.TestCase):
         self.assertNotIn("<blockquote", h)
         self.assertIn('href="https://menu.sushiro.example/9001"', h)  # 公式のメニューページ
         self.assertIn('href="https://news.example/p1"', h)  # 公式のお知らせ・トピック
-        self.assertIn("出典：スシロー公式サイト（2026-11-03時点）", h)
+        self.assertIn("出典：スシロー公式サイト（2026年11月3日時点）", h)
 
     def test_no_images_except_site_logo(self):
         h = g.render_item_page(item())
@@ -206,20 +206,44 @@ class TestItemPage(unittest.TestCase):
         self.assertNotIn("adsbygoogle", h)
         self.assertNotIn("googletagmanager", h)
 
-    def test_notes_come_after_nutrition(self):
-        # 注意書きが先に並ぶと、カロリーまで長くスクロールすることになる
-        it = item()
+    def test_block_order_facts_notes_source_nutrition(self):
+        # 表 -> 注意書き -> 出典 -> 栄養成分。出典は栄養成分より前、「補足と出典」は無い
+        it = item(launch_date=None)  # 発売日不明の注意書きが表の直下に出る
         h = g.render_item_page(it)
         nutrition = g.render_nutrition(it)
         self.assertTrue(nutrition)
-        self.assertLess(h.index(nutrition), h.index("補足と出典"))
-        self.assertLess(h.index("補足と出典"), h.index("<p class='source'>"))
+        self.assertLess(h.index("<table class='facts'>"), h.index("<p class='note'>"))
+        self.assertLess(h.index("<p class='note'>"), h.index("<p class='source'>"))
+        self.assertLess(h.index("<p class='source'>"), h.index(nutrition))
+        self.assertNotIn("補足と出典", h)
+        self.assertEqual(h.count("<p class='source'>"), 1)
+
+    def test_facts_table_rows(self):
+        h = g.render_item_page(item(category="にぎり", stores_note="一部店舗では取り扱いません"))
+        self.assertRegex(h, r"<th>販売期間</th><td>[^<]+</td>")
+        self.assertIn("<th>カテゴリ</th><td>にぎり</td>", h)
+        self.assertIn("<th>取り扱い</th><td>一部店舗では取り扱いません</td>", h)
+        self.assertNotIn("<strong>販売期間：</strong>", h)
+        self.assertNotIn("取り扱い：", h)
+        h = g.render_item_page(item(category=None, stores_note=None))
+        self.assertNotIn("<th>カテゴリ</th>", h)
+        self.assertNotIn("<th>取り扱い</th>", h)
+
+    def test_tail_heading_only_with_notes(self):
+        h = g.render_item_page(item(seasons=[{"launch_date": "2025-11-01", "ended_observed_at": "2026-01-10"}]))
+        self.assertIn("<h2>補足</h2>", h)
+        self.assertLess(h.index("<p class='source'>"), h.index("<h2>補足</h2>"))
+        h = g.render_item_page(item(seasons=[], nutrition_changes=[]))
+        self.assertNotIn("<h2>補足</h2>", h)
+
+    def test_source_date_format(self):
+        self.assertEqual(g.jp_date("2026-10-07"), "2026年10月7日")
 
     def test_nutrition_notes_are_short(self):
         h = g.render_item_page(item(nutrition_note="公式サイトで公表されているのはカロリー(kcal)のみです"))
         self.assertNotIn("公表されているのは", h)
         self.assertNotIn("転記", h)
-        self.assertIn('href="https://nutrition.example', h)  # 栄養の出典は補足と出典に残す
+        self.assertIn('href="https://nutrition.example', h)  # 栄養の出典は栄養成分の欄に残す
         self.assertIn("最新のアレルギー情報は公式サイトでご確認ください", h)  # アレルゲンの案内は残す
         h = g.render_item_page(item(nutrition_note="ミルクは標準の値です"))
         self.assertIn("ミルクは標準の値です。", h)
@@ -621,7 +645,7 @@ class TestHeadingStructure(unittest.TestCase):
         h = g.render_item_page(item(price_history=[{"date": "2026-11-03", "price": 600, "price_max": 700},
                                                   {"date": "2026-11-05", "price": 650, "price_max": 700}]))
         self.assertNotIn("<h3", h)
-        self.assertIn("<h2>補足と出典</h2>", h)
+        self.assertNotIn("補足と出典", h)
 
     def test_breadcrumb_json_ld(self):
         d = self.build()

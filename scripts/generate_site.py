@@ -392,6 +392,7 @@ h2, h1.pt { font-size: 18px; padding-left: 10px; border-left: 4px solid var(--ac
 .detail table.multi th, .detail table.multi td { width: auto; text-align: right; white-space: nowrap; }
 .detail table.multi th:first-child { text-align: left; }
 .detail table.pv { max-width: 320px; }
+.detail table.facts { max-width: 420px; margin-bottom: 4px; }
 /* 商品ページの節見出しは h2。見た目は従来の h3 と同じにする */
 .detail h2 { margin: 16px 0 0; padding: 0; border: 0; font-size: 14px; }
 .detail details { margin-top: 10px; font-size: 13px; }
@@ -1205,8 +1206,25 @@ def price_scope_text(chain: str) -> str:
     return PRICE_SCOPE.get(chain, "価格は店舗により異なります。").replace("{store}", store)
 
 
+def jp_date(iso: str) -> str:
+    """2026-10-27 -> 2026年10月27日 (ゼロ埋めなし)。形式が違えばそのまま返す。"""
+    m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", iso or "")
+    return f"{int(m[1])}年{int(m[2])}月{int(m[3])}日" if m else (iso or "")
+
+
+def render_facts(item: dict) -> str:
+    """基本情報の表(販売期間・カテゴリ・取り扱い)。無い項目は行ごと出さない。"""
+    rows = [("販売期間", period_text(item, detailed=True))]
+    if item.get("category"):
+        rows.append(("カテゴリ", item["category"]))
+    if item.get("stores_note"):
+        rows.append(("取り扱い", item["stores_note"]))
+    trs = "".join(f"<tr><th>{esc(k)}</th><td>{esc(v)}</td></tr>" for k, v in rows)
+    return f"<table class='facts'>{trs}</table>"
+
+
 def render_notes(item: dict) -> str:
-    """商品ごとに読む意味がある補足だけを出す。サイト全体の説明はフッターと各ページの案内にある。"""
+    """表の直下に出す注意書き。販売期間・価格の読み方に関わるものだけ。"""
     notes = []
     chain = item["chain"]
     if not item.get("price_note"):  # 価格の直下に出ていれば繰り返さない
@@ -1215,10 +1233,14 @@ def render_notes(item: dict) -> str:
         notes.append("発売日は不明のため、記録を始めた日から表示しています。")
     if is_ended(item) and item.get("ended_basis") != "official_close_date":
         notes.append("店頭ではまだ販売していることもあります。")
-    if chain == "hamazushi":
+    return "".join(f"<p class='note'>{n}</p>" for n in notes)
+
+
+def render_tail_notes(item: dict) -> str:
+    """末尾「補足」に出す注意書き(昨季の掲載・栄養成分まわり)。"""
+    notes = []
+    if item["chain"] == "hamazushi":
         notes.append("カロリーは公式のアレルゲン一覧表（PDF）の値です。")
-    if item.get("stores_note"):
-        notes.append(f"取り扱い：{esc(item['stores_note'])}")
     for s_ in item.get("seasons") or []:
         start = s_.get("launch_date") or (f"{s_['observed_start']}（記録開始日）" if s_.get("observed_start") else "開始日不明")
         notes.append(f"昨季の掲載：{esc(start)}〜{esc(s_.get('ended_observed_at') or '')}（終了日は{ENDED_NOTE}）")
@@ -1231,7 +1253,7 @@ def render_notes(item: dict) -> str:
 
 
 def render_sources(item: dict) -> str:
-    """公式ページ(とあれば公式のお知らせ)へのリンクを、出典として出す。説明文は載せない。"""
+    """出典の1行。公式ページ(とあれば公式のお知らせ)へのリンクを続ける。説明文は載せない。"""
     chain = item["chain"]
     chain_name = CHAIN_NAME.get(chain, chain)
     off = CHAIN_OFFICIAL.get(chain, {})
@@ -1245,9 +1267,10 @@ def render_sources(item: dict) -> str:
         links.append(link_html(nut_src.get("label") or "公式の栄養情報", nut_src["url"]))
     if off.get("url"):
         links.append(link_html(f"{chain_name}公式サイト", off["url"]))
-    fetched = (item.get("first_seen_at") or "")[:10]
-    return (f"<p class='source'>出典：{esc(CHAIN_SOURCE.get(chain, chain_name + '公式サイト'))}（{esc(fetched)}時点）</p>"
-            f"<p class='source'>{' ・ '.join(links)}</p>")
+    fetched = jp_date((item.get("first_seen_at") or "")[:10])
+    tail = "".join(f" ・ {l}" for l in links)
+    return (f"<p class='source'>出典：{esc(CHAIN_SOURCE.get(chain, chain_name + '公式サイト'))}"
+            f"（{esc(fetched)}時点）{tail}</p>")
 
 
 def render_item_page(item: dict) -> str:
@@ -1300,6 +1323,8 @@ def render_item_page(item: dict) -> str:
     for r in item.get("relaunches") or []:
         relaunch += (f"<p class='note'>一度販売終了を確認した後（{esc(r.get('ended_observed_at') or '')}）、"
                      f"{esc(r.get('reappeared_at') or '')}に公式サイトの一覧へ再び登場しました。</p>")
+    tail_notes = render_tail_notes(item)
+    tail_html = f"<h2>補足</h2>\n{tail_notes}" if tail_notes else ""
     body = f"""<nav class="crumbs"><a href="/">トップ</a> &gt; <a href="/chains/{esc(item['chain'])}/">{esc(chain_name)}</a></nav>
 <div class="detail">
 <div class="chain-badge" style="background:var(--{esc(item['chain'])})">{esc(chain_name)}</div>
@@ -1307,18 +1332,17 @@ def render_item_page(item: dict) -> str:
 {kind_html}
 <p class="price">{price_html}{price_note}</p>
 {render_price_variants(item)}
-<p><strong>販売期間：</strong>{esc(period_text(item, detailed=True))}</p>
-{('<p><strong>カテゴリ：</strong>' + esc(item['category']) + '</p>') if item.get('category') else ''}
+{render_facts(item)}
 {relaunch}
+{render_notes(item)}
+{render_sources(item)}
 {nutrition_html}
 {allergen_html}
 {history_html}
 {mid_ad}
 {reviews_html}
 {related_html}
-<h2>補足と出典</h2>
-{render_notes(item)}
-{render_sources(item)}
+{tail_html}
 {bottom_ad}
 </div>"""
     canonical = CONFIG.get("site_url", "") + item_url(item)
