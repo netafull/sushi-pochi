@@ -8,7 +8,7 @@
 [林檎ポチ](https://apple.netaful.jp/)・[漫画ポチ](https://manga.netaful.jp/)・
 [コンビニポチ](https://conbini.netaful.jp/)・[ファストフードポチ](https://fastfood.netaful.jp/)・
 [カフェポチ](https://cafe.netaful.jp/)と同じ作り。**構造は `cafe-pochi` の汎用エンジン**（保存スキーマ・終了判定・歯止め・価格履歴・
-run_summary/_health・ntfy通知・サイト生成・RSS・sitemap・広告枠のJS・ネタフル記事のひも付け）を引き継ぎ、
+run_summary/_health・ntfy通知・サイト生成・sitemap・広告枠のJS・ネタフル記事のひも付け）を引き継ぎ、
 チェーン固有の取得を4社分に作り直した。アレルゲン（はま寿司はカロリーも）は公式PDFから読み取る
 （`fastfood-pochi` の設計を移植。pdfminer.six だけがpip依存）。
 サイトの色は藍系 `#1E3A5F`（ダークモードは `#8FB4E3`）。広告(AdSense)とGA4は config の値が空の間は何も出力しない
