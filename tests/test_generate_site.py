@@ -236,7 +236,7 @@ class TestItemPage(unittest.TestCase):
         h = g.render_item_page(item(seasons=[{"launch_date": "2025-11-01", "ended_observed_at": "2026-01-10"}]))
         self.assertIn("<h2>補足</h2>", h)
         self.assertLess(h.index("<p class='source'>"), h.index("<h2>補足</h2>"))
-        h = g.render_item_page(item(seasons=[], nutrition_changes=[]))
+        h = g.render_item_page(item(seasons=[], nutrition_changes=[], nutrition_source=None, price_note="サイズにより異なります"))
         self.assertNotIn("<h2>補足</h2>", h)
 
     def test_source_date_format(self):
