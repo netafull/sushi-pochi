@@ -206,15 +206,16 @@ class TestItemPage(unittest.TestCase):
         self.assertNotIn("adsbygoogle", h)
         self.assertNotIn("googletagmanager", h)
 
-    def test_block_order_facts_notes_source_nutrition(self):
-        # 表 -> 注意書き -> 出典 -> 栄養成分。出典は栄養成分より前、「補足と出典」は無い
-        it = item(launch_date=None)  # 発売日不明の注意書きが表の直下に出る
+    def test_block_order_facts_source_nutrition_notes(self):
+        # 表 -> 出典 -> 栄養成分 -> ... -> 末尾「補足」(注意書き)。「補足と出典」は無い
+        it = item(launch_date=None)  # 発売日不明の注意書きが末尾に出る
         h = g.render_item_page(it)
         nutrition = g.render_nutrition(it)
         self.assertTrue(nutrition)
-        self.assertLess(h.index("<table class='facts'>"), h.index("<p class='note'>"))
-        self.assertLess(h.index("<p class='note'>"), h.index("<p class='source'>"))
+        self.assertLess(h.index("<table class='facts'>"), h.index("<p class='source'>"))
         self.assertLess(h.index("<p class='source'>"), h.index(nutrition))
+        self.assertLess(h.index(nutrition), h.index("<h2>補足</h2>"))
+        self.assertLess(h.index("<h2>補足</h2>"), h.index("発売日は不明のため"))
         self.assertNotIn("補足と出典", h)
         self.assertEqual(h.count("<p class='source'>"), 1)
 

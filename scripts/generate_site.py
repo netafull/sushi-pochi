@@ -1224,7 +1224,7 @@ def render_facts(item: dict) -> str:
 
 
 def render_notes(item: dict) -> str:
-    """表の直下に出す注意書き。販売期間・価格の読み方に関わるものだけ。"""
+    """末尾「補足」に出す注意書き(価格の店舗差・発売日不明など)。"""
     notes = []
     chain = item["chain"]
     if not item.get("price_note"):  # 価格の直下に出ていれば繰り返さない
@@ -1323,7 +1323,7 @@ def render_item_page(item: dict) -> str:
     for r in item.get("relaunches") or []:
         relaunch += (f"<p class='note'>一度販売終了を確認した後（{esc(r.get('ended_observed_at') or '')}）、"
                      f"{esc(r.get('reappeared_at') or '')}に公式サイトの一覧へ再び登場しました。</p>")
-    tail_notes = render_tail_notes(item)
+    tail_notes = relaunch + render_notes(item) + render_tail_notes(item)
     tail_html = f"<h2>補足</h2>\n{tail_notes}" if tail_notes else ""
     body = f"""<nav class="crumbs"><a href="/">トップ</a> &gt; <a href="/chains/{esc(item['chain'])}/">{esc(chain_name)}</a></nav>
 <div class="detail">
@@ -1333,8 +1333,6 @@ def render_item_page(item: dict) -> str:
 <p class="price">{price_html}{price_note}</p>
 {render_price_variants(item)}
 {render_facts(item)}
-{relaunch}
-{render_notes(item)}
 {render_sources(item)}
 {nutrition_html}
 {allergen_html}
