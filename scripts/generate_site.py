@@ -445,8 +445,7 @@ footer { max-width: 980px; margin: 0 auto; padding: 16px; color: var(--muted); f
 .item.has-icon { display: flex; align-items: flex-start; gap: 12px; }
 .item.has-icon .item-main { flex: 1; min-width: 0; }
 .detail h1.with-icon { display: flex; align-items: center; gap: 12px; }
-.detail h1.with-icon .cat-icon { width: 64px; height: 64px; }
-@media (min-width: 700px) { .item.has-icon > .cat-icon { width: 64px; height: 64px; } }
+@media (min-width: 700px) { .item.has-icon > .cat-icon, .detail h1.with-icon .cat-icon { width: 64px; height: 64px; } }
 """
 
 
