@@ -511,9 +511,8 @@ class TestOutputs(unittest.TestCase):
         self.assertNotIn("Googlebot", r)
         self.assertIn("Sitemap: https://sushi.netaful.jp/sitemap.xml", r)
 
-    def test_rss_and_sitemap(self):
-        rss = g.generate_rss([item()])
-        self.assertIn("【スシロー】テストラテ", rss)
+    def test_no_rss_and_sitemap(self):
+        self.assertFalse(hasattr(g, "generate_rss"))
         sm = g.generate_sitemap([item()], ["2026-09"])
         self.assertIn("https://sushi.netaful.jp/items/sushiro-9001.html", sm)
         self.assertIn("https://sushi.netaful.jp/archive/2026-09/", sm)

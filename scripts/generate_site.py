@@ -587,9 +587,6 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
     )
     related_html = f'<nav class="sites"><span class="lbl">関連サイト</span>\n{links}\n</nav>' if related else ""
 
-    official_links = " ／ ".join(
-        f'<a href="{esc(CHAIN_OFFICIAL[c["slug"]]["url"])}">{esc(c["name"])}</a>'
-        for c in CHAINS if c["slug"] in CHAIN_OFFICIAL)
     policy_url = CONFIG.get("policy_url", "")
     policy_link = (
         f'｜ <a href="{esc(policy_url)}">メディアポリシー</a>\n' if policy_url else ""
@@ -617,7 +614,6 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
 <meta property="og:site_name" content="{esc(CONFIG['site_title'])}">
 <meta property="og:locale" content="ja_JP">
 {chr(10).join(ogp_tags)}
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml">
 <style>{build_css()}</style>
 {extra_head}
 </head>
@@ -633,8 +629,7 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
 <footer>
 価格は公式サイトの表示（スシローは特定の1店舗・巣本店の値）で、店舗により異なります。販売期間・販売状況は取得した時点のものです。最新の状況は各社公式サイトでご確認ください。
 当サイトは{esc(CHAIN_LIST_TEXT)}各社とは関係のない非公式サイトです。記録しているのは事実情報だけで、説明文・画像は載せていません。
-公式サイト： {official_links}
-{policy_link}｜ <a href="/rss.xml">RSS</a> ｜ <a href="/archive/">終了した期間限定ネタ</a>
+{policy_link}｜ <a href="/archive/">終了した期間限定ネタ</a>
 {related_html}
 {SERIES_INDEX_HTML}
 </footer>
@@ -1372,46 +1367,6 @@ def generate_robots() -> str:
     return "\n".join(lines)
 
 
-def generate_rss(items: list[dict]) -> str:
-    """新しく記録したメニューのRSS。"""
-    site_url = CONFIG.get("site_url", "")
-    now = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
-
-    recent = sorted(items, key=lambda it: it.get("first_seen_at") or "", reverse=True)[
-        : CONFIG.get("rss_max_items", 100)]
-    entries = []
-    for it in recent:
-        chain_name = CHAIN_NAME.get(it["chain"], it["chain"])
-        title = f"【{chain_name}】{it['name']}"
-        link = f"{site_url}{item_url(it)}"
-        guid = f"{it['chain']}-{it['product_id']}"
-        try:
-            pub = datetime.datetime.fromisoformat(it.get("first_seen_at"))
-            pub_html = "\n<pubDate>" + pub.strftime("%a, %d %b %Y %H:%M:%S %z") + "</pubDate>"
-        except (TypeError, ValueError):
-            pub_html = ""
-        entries.append(
-            f"""<item>
-<title>{esc(title)}</title>
-<link>{esc(link)}</link>
-<guid isPermaLink="false">{esc(guid)}</guid>
-<category>{esc(chain_name)}</category>{pub_html}
-</item>"""
-        )
-    items_xml = "\n".join(entries)
-    return f"""<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
-<channel>
-<title>{esc(CONFIG["site_title"])}</title>
-<link>{esc(site_url)}</link>
-<description>{esc(CONFIG["site_description"])}</description>
-<lastBuildDate>{now}</lastBuildDate>
-{items_xml}
-</channel>
-</rss>
-"""
-
-
 def generate_sitemap(items: list[dict], months: list[str]) -> str:
     site_url = CONFIG.get("site_url", "")
     today = datetime.datetime.now(JST).date().isoformat()
@@ -1502,7 +1457,6 @@ def main() -> int:
     (DOCS / "search-index.json").write_text(
         json.dumps(build_search_index(items), ensure_ascii=False), encoding="utf-8"
     )
-    (DOCS / "rss.xml").write_text(generate_rss(items), encoding="utf-8")
     (DOCS / "sitemap.xml").write_text(generate_sitemap(items, months), encoding="utf-8")
     (DOCS / "robots.txt").write_text(generate_robots(), encoding="utf-8")
     (DOCS / "CNAME").write_text(
@@ -1512,7 +1466,7 @@ def main() -> int:
 
     print(
         f"generated: index.html, {len(months)} archive months, {len(CHAINS)} chain pages, "
-        f"{len(items)} item pages, rss.xml, sitemap.xml, search-index.json"
+        f"{len(items)} item pages, sitemap.xml, search-index.json"
         + (f" / removed {stale_items} stale item pages" if stale_items else "")
         + (f" / removed {stale_months} stale archive dirs" if stale_months else "")
     )
