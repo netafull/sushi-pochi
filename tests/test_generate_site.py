@@ -98,8 +98,10 @@ class TestItemPage(unittest.TestCase):
     def test_no_description_quote_only_facts_and_links(self):
         h = g.render_item_page(item())
         self.assertNotIn("<blockquote", h)
-        self.assertIn('href="https://menu.sushiro.example/9001"', h)  # 公式のメニューページ
-        self.assertIn('href="https://news.example/p1"', h)  # 公式のお知らせ・トピック
+        self.assertIn('href="https://menu.sushiro.example/9001"', h)  # 公式のメニューページ(リンクは1つ)
+        self.assertNotIn('href="https://news.example/p1"', h.split("<p class='source'>")[1].split("</p>")[0])
+        self.assertIn("・ <a", h.split("<p class='source'>")[1].split("</p>")[0])
+        self.assertIn("公式ページを見る</a>", h)
         self.assertIn("出典：スシロー公式サイト（2026年11月3日時点）", h)
 
     def test_no_images_except_site_logo(self):

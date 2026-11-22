@@ -1253,22 +1253,15 @@ def render_tail_notes(item: dict) -> str:
 
 
 def render_sources(item: dict) -> str:
-    """出典の1行。公式ページ(とあれば公式のお知らせ)へのリンクを続ける。説明文は載せない。"""
+    """出典の1行。公式ページへのリンクを1つ続ける。説明文は載せない。"""
     chain = item["chain"]
     chain_name = CHAIN_NAME.get(chain, chain)
     off = CHAIN_OFFICIAL.get(chain, {})
-    links = []
-    if item.get("official_url"):
-        links.append(link_html("公式のメニューページ", item["official_url"]))
-    if item.get("news_url"):
-        links.append(link_html("公式のお知らせ・トピック", item["news_url"]))
     nut_src = item.get("nutrition_source") or {}
-    if nut_src.get("url") and nut_src["url"] != item.get("official_url"):
-        links.append(link_html(nut_src.get("label") or "公式の栄養情報", nut_src["url"]))
-    if off.get("url"):
-        links.append(link_html(f"{chain_name}公式サイト", off["url"]))
+    # 商品に最も近い公式ページを1つだけ: メニューページ > お知らせ > 栄養情報 > 公式サイト
+    url = item.get("official_url") or item.get("news_url") or nut_src.get("url") or off.get("url")
+    tail = f" ・ {link_html('公式ページを見る', url)}" if url else ""
     fetched = jp_date((item.get("first_seen_at") or "")[:10])
-    tail = "".join(f" ・ {l}" for l in links)
     return (f"<p class='source'>出典：{esc(CHAIN_SOURCE.get(chain, chain_name + '公式サイト'))}"
             f"（{esc(fetched)}時点）{tail}</p>")
 
