@@ -1241,6 +1241,9 @@ def render_tail_notes(item: dict) -> str:
     notes = []
     if item["chain"] == "hamazushi":
         notes.append("カロリーは公式のアレルゲン一覧表（PDF）の値です。")
+    nut_src = item.get("nutrition_source") or {}
+    if item.get("nutrition") and nut_src.get("url") and nut_src["url"] != item.get("official_url"):
+        notes.append(f"栄養情報の出典：{link_html(nut_src.get('label') or '公式の栄養情報', nut_src['url'])}")
     for s_ in item.get("seasons") or []:
         start = s_.get("launch_date") or (f"{s_['observed_start']}（記録開始日）" if s_.get("observed_start") else "開始日不明")
         notes.append(f"昨季の掲載：{esc(start)}〜{esc(s_.get('ended_observed_at') or '')}（終了日は{ENDED_NOTE}）")
