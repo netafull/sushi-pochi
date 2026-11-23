@@ -469,14 +469,15 @@ class TestTop(unittest.TestCase):
         h = g.render_top([])
         self.assertNotIn("<h3>", h)
 
-    def test_about_is_short_and_states_facts_only_policy(self):
+    def test_about_is_short(self):
         h = g.render_top([item()]).replace(' data-google-vignette="false"', "")
         # 運営者の一文（「運営はブログ『ネタフル』のコグレです」）は2026-11-16にフッター・aboutから外した
         self.assertNotIn("運営はブログ", h)
         self.assertIn("非公式サイト", h)
-        self.assertIn("記録しているのは事実情報だけ", h)
-        self.assertIn("説明文と画像は載せていません", h)
-        self.assertIn("各社の公式サイトをご覧ください", h)
+        # 2026-11-23のオーナー指示で、about は目的の1段落だけにした（事実情報・終了判定などの仕様説明は外した）
+        self.assertNotIn("記録しているのは事実情報だけ", h)
+        self.assertNotIn("説明文と画像は載せていません", h)
+        self.assertNotIn("終了の判定は", h)
 
 
 class TestArchive(unittest.TestCase):

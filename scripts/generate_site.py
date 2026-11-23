@@ -589,7 +589,7 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
 
     # 広告・解析の開示文(実際に使っているものだけ書く)
     if adsense_id and ga_id:
-        disclosure = "当サイトは広告（Google AdSense）を掲載し、アクセス解析（Googleアナリティクス）を使っています。いずれもCookieを使うことがあります。"
+        disclosure = "当サイトはGoogle AdSenseを掲載し、Googleアナリティクスを使っています。いずれもCookieを使うことがあります。"
     elif ga_id:
         disclosure = "当サイトはアクセス解析（Googleアナリティクス）を使っています。Cookieを使うことがあります。"
     else:
@@ -632,7 +632,7 @@ def page_shell(title: str, description: str, body: str, canonical: str, extra_he
 </main>
 <footer>
 価格は公式サイトの表示（スシローは特定の1店舗・巣本店の値）で、店舗により異なります。販売期間・販売状況は取得した時点のものです。最新の状況は各社公式サイトでご確認ください。
-当サイトは{esc(CHAIN_LIST_TEXT)}各社とは関係のない非公式サイトです。記録しているのは事実情報だけで、説明文・画像は載せていません。
+当サイトは{esc(CHAIN_LIST_TEXT)}各社とは関係のない非公式サイトです。
 {disclosure_line}｜ <a href="/archive/">終了した期間限定ネタ</a>
 {related_html}
 {SERIES_INDEX_HTML}
