@@ -117,7 +117,7 @@
  "last_seen_at": "2026-11-24",
  "status": "on_sale",
  "ended_observed_at": null,
- "missed_runs": 0,
+ "missed_runs": 1,
  "price_history": [
   {
    "date": "2026-11-03",
@@ -128,5 +128,6 @@
  "limited_by": "image",
  "source_list": [
   "kurasushi.co.jp/menu/"
- ]
+ ],
+ "last_miss_date": "2026-11-24"
 }
