@@ -33,7 +33,7 @@
  "stores_note": "お持ち帰り対象外",
  "official_url": "https://www.akindo-sushiro.co.jp/menu/menu_detail/?s_id=434",
  "first_seen_at": "2026-11-25T08:30:17+09:00",
- "last_seen_at": "2026-11-25",
+ "last_seen_at": "2026-11-26",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,
@@ -54,5 +54,5 @@
  "source_list": [
   "akindo-sushiro.co.jp/menu/menu_detail/?s_id=434"
  ],
- "pdf_tried": "2026-11-05"
+ "pdf_tried": "2026-11-18"
 }

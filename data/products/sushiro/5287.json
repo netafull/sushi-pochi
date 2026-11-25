@@ -65,9 +65,9 @@
  "allergen_source": {
   "url": "https://www3.akindo-sushiro.co.jp/pdf/menu/allergy.pdf",
   "label": "スシロー アレルギー情報（公式PDF）",
-  "version": "2026-11-05",
-  "version_text": "2026年11月5日更新",
-  "fetched_at": "2026-11-12T08:30:21+09:00"
+  "version": "2026-11-18",
+  "version_text": "2026年11月18日更新",
+  "fetched_at": "2026-11-26T08:30:22+09:00"
  },
  "allergen_note": null,
  "limited_kind": "期間限定",
@@ -75,9 +75,9 @@
  "official_url": "https://www.akindo-sushiro.co.jp/menu/menu_detail/?s_id=434",
  "first_seen_at": "2026-11-03T19:23:47+09:00",
  "last_seen_at": "2026-11-24",
- "status": "on_sale",
- "ended_observed_at": null,
- "missed_runs": 1,
+ "status": "ended",
+ "ended_observed_at": "2026-11-26",
+ "missed_runs": 2,
  "price_history": [
   {
    "date": "2026-11-03",
@@ -95,5 +95,5 @@
  "source_list": [
   "akindo-sushiro.co.jp/menu/menu_detail/?s_id=434"
  ],
- "last_miss_date": "2026-11-25"
+ "last_miss_date": "2026-11-26"
 }
