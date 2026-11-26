@@ -32,17 +32,30 @@
   "label": "かっぱ寿司 メニュー",
   "url": "https://www.kappasushi.jp/menu2"
  },
- "allergens": null,
+ "allergens": {
+  "contains": [
+   "小麦",
+   "卵",
+   "大豆",
+   "豚肉",
+   "りんご"
+  ],
+  "partial": [],
+  "partial_meaning": null
+ },
  "allergen_source": {
+  "url": "https://www.kappasushi.jp/master_data/pdf/info_allergen.pdf",
   "label": "かっぱ寿司 メニュー別アレルゲン情報（公式PDF）",
-  "url": "https://www.kappasushi.jp/master_data/pdf/info_allergen.pdf"
+  "version": "2026-11-19",
+  "version_text": "2026年11月19日確認",
+  "fetched_at": "2026-11-27T07:10:38+09:00"
  },
  "allergen_note": null,
  "limited_kind": "期間限定ネタ",
  "stores_note": null,
  "official_url": "https://www.kappasushi.jp/menu2",
  "first_seen_at": "2026-11-26T08:30:43+09:00",
- "last_seen_at": "2026-11-26",
+ "last_seen_at": "2026-11-27",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,
