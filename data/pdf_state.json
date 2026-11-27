@@ -12,8 +12,9 @@
   "version": "2026-11-19"
  },
  "kurasushi": {
+  "failed_signature": "|Sun, 22 Nov 2026 08:56:32 GMT|2309809",
   "fetched_at": "2026-11-21T08:30:40+09:00",
-  "last_get": "2026-11-21",
+  "last_get": "2026-11-28",
   "signature": "|Mon, 09 Nov 2026 05:41:32 GMT|2364583",
   "version": "2026-11-20"
  },

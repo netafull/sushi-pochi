@@ -1,6 +1,12 @@
 {
  "hamazushi": {},
  "kappasushi": {},
- "kurasushi": {},
+ "kurasushi": {
+  "pdf:allergen": {
+   "checked_at": "2026-11-28T07:10:28+09:00",
+   "reason": "validation: カロリーを読み取れた行の割合が低すぎます(0%)",
+   "url": "https://www.kurasushi.co.jp/common/pdf/kura_allergen.pdf"
+  }
+ },
  "sushiro": {}
 }

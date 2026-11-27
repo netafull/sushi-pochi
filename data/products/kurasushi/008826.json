@@ -3,7 +3,7 @@
  "product_id": "008826",
  "name": "魚介ユッケ",
  "category": "サイドメニュー",
- "price": 270,
+ "price": 260,
  "price_max": null,
  "price_note": "［一皿110円〜店舗］の価格です。店舗により異なります",
  "price_variants": null,
@@ -52,7 +52,7 @@
  "stores_note": "お持ち帰り不可",
  "official_url": "https://www.kurasushi.co.jp/menu/",
  "first_seen_at": "2026-11-03T19:30:58+09:00",
- "last_seen_at": "2026-11-27",
+ "last_seen_at": "2026-11-28",
  "status": "on_sale",
  "ended_observed_at": null,
  "missed_runs": 0,
@@ -60,6 +60,10 @@
   {
    "date": "2026-11-03",
    "price": 270
+  },
+  {
+   "date": "2026-11-28",
+   "price": 260
   }
  ],
  "launch_search_runs": 0,
